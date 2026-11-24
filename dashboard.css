@@ -1,7 +1,8 @@
 /* ==========================================================================
-   SubmitTED 2026 — TV Wayfinding & Occupancy Screen
-   Clean executive typography, location-free Zone board + vertical daily plan,
-   paired with a 2D Campus Schematic (Kroki) & explicit location legend.
+   SubmitTED 2026 — Pure Passive Campus TV Display
+   Zero buttons, zero clickable controls, zero 2D kroki SVG.
+   Executive typography, crisp Zone occupancy, clear text location directory,
+   vertically stacked daily plan, and soft-flashing bottom announcement.
    ========================================================================== */
 
 :root {
@@ -35,6 +36,7 @@ body.tv-body {
   color: var(--tv-text);
   font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
+  user-select: none;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -56,7 +58,7 @@ body.tv-body {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  min-height: 64px;
+  min-height: 68px;
   padding-top: 6px;
   padding-bottom: 6px;
   flex-wrap: wrap;
@@ -68,13 +70,8 @@ body.tv-body {
   gap: 16px;
 }
 
-.tv-logo-link {
-  display: inline-flex;
-  align-items: center;
-}
-
 .tv-logo {
-  height: 44px;
+  height: 46px;
   width: auto;
   display: block;
 }
@@ -138,25 +135,25 @@ body.tv-body {
   line-height: 1.05;
 }
 
-/* Main Grid */
+/* Main Split Grid */
 .tv-main {
   flex: 1;
   display: flex;
   align-items: stretch;
-  padding: 12px 0;
+  padding: 16px 0;
 }
 
 .tv-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.05fr);
+  gap: 16px;
   align-items: stretch;
 }
 
-.tv-left-stack {
+.tv-right-stack {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .tv-card-panel {
@@ -181,7 +178,7 @@ body.tv-body {
 
 .tv-panel-head {
   display: grid;
-  grid-template-columns: minmax(200px, 1.8fr) 160px 96px;
+  grid-template-columns: minmax(200px, 1.8fr) 165px 96px;
   font-family: var(--font-display);
   font-size: 11.5px;
   font-weight: 700;
@@ -195,7 +192,7 @@ body.tv-body {
   font-family: var(--font-display);
   font-size: 12.5px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   color: #d6dde3;
 }
@@ -205,21 +202,21 @@ body.tv-body {
   color: var(--tv-muted);
 }
 
-/* 6 Zone Rows (Location moved to 2D Side) */
+/* Left: 6 Passive Zone Rows */
 .tv-rows {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 .tv-row {
+  flex: 1;
   display: grid;
-  grid-template-columns: minmax(200px, 1.8fr) 160px 96px;
+  grid-template-columns: minmax(200px, 1.8fr) 165px 96px;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
+  gap: 14px;
+  padding: 12px 18px;
   border-bottom: 1px solid #161e25;
-  cursor: pointer;
-  transition: background-color 0.14s ease;
 }
 
 .tv-row:last-child {
@@ -230,12 +227,8 @@ body.tv-body {
   background-color: var(--tv-surface-alt);
 }
 
-.tv-row:hover {
-  background-color: #141c23;
-}
-
 .tv-row.is-highlighted {
-  background-color: rgba(245, 166, 35, 0.06);
+  background-color: rgba(245, 166, 35, 0.07);
   box-shadow: inset 3px 0 0 var(--tv-amber);
 }
 
@@ -248,22 +241,22 @@ body.tv-body {
 
 .tv-zone-accent {
   width: 4px;
-  height: 32px;
+  height: 38px;
   background-color: var(--zc, #7dc84d);
   flex-shrink: 0;
 }
 
 .tv-zone-title {
   font-family: var(--font-display);
-  font-size: 16.5px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
   line-height: 1.15;
 }
 
 .tv-zone-detail {
-  margin-top: 2px;
-  font-size: 12.5px;
+  margin-top: 3px;
+  font-size: 13px;
   color: #b4bfc8;
 }
 
@@ -275,7 +268,7 @@ body.tv-body {
 .tv-col-occ {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .tv-occ-top {
@@ -287,19 +280,19 @@ body.tv-body {
 
 .tv-pct {
   font-family: var(--font-display);
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 800;
   color: #ffffff;
 }
 
 .tv-count {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--tv-muted);
 }
 
 .tv-bar-track {
   width: 100%;
-  height: 5px;
+  height: 6px;
   background-color: #182027;
   overflow: hidden;
 }
@@ -316,7 +309,7 @@ body.tv-body {
 
 .tv-status-pill {
   display: inline-block;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   padding: 4px 10px;
   border: 1px solid var(--sc, var(--tv-green));
@@ -324,7 +317,60 @@ body.tv-body {
   border-radius: 2px;
 }
 
-/* Vertical Daily Plan ("Günün Planı" Alt Alta) */
+/* Right Top: Explicit Text Location Guide (No 2D Kroki) */
+.tv-loc-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tv-loc-row {
+  display: grid;
+  grid-template-columns: 195px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #161e25;
+}
+
+.tv-loc-row:last-child {
+  border-bottom: none;
+}
+
+.tv-loc-row:nth-child(even) {
+  background-color: var(--tv-surface-alt);
+}
+
+.tv-loc-zone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.tv-loc-zone i {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+}
+
+.tv-loc-place strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #eef2f5;
+}
+
+.tv-loc-place span {
+  display: block;
+  font-size: 11.5px;
+  color: var(--tv-muted);
+  margin-top: 1px;
+}
+
+/* Right Bottom: Vertically Stacked Daily Plan ("Günün Planı" Alt Alta) */
 .tv-schedule-list {
   display: flex;
   flex-direction: column;
@@ -335,7 +381,7 @@ body.tv-body {
   grid-template-columns: 105px minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
-  padding: 7px 16px;
+  padding: 8px 18px;
   border-bottom: 1px solid #161e25;
   font-size: 12.5px;
 }
@@ -399,61 +445,6 @@ body.tv-body {
 .tv-plan-badge.is-zone {
   border: 1px solid #2a3642;
   color: #b7c2cc;
-}
-
-/* Right Side: 2D Kroki + Explicit Location Legend */
-.tv-map-panel {
-  justify-content: space-between;
-}
-
-.kroki-canvas {
-  padding: 12px 14px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.kroki-svg {
-  width: 100%;
-  max-height: 410px;
-  height: auto;
-  display: block;
-}
-
-.kroki-block {
-  cursor: pointer;
-  transition: opacity 0.16s ease;
-}
-
-.kroki-block:hover {
-  opacity: 0.9;
-}
-
-.tv-location-legend {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  padding: 12px 16px 14px;
-  border-top: 1px solid var(--tv-border);
-  background-color: #090c0f;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #dce3ea;
-}
-
-.legend-item i {
-  width: 9px;
-  height: 9px;
-  flex-shrink: 0;
-}
-
-.legend-item strong {
-  color: #ffffff;
 }
 
 /* Bottom Soft-Flashing Routing Strip */
@@ -575,6 +566,12 @@ body.tv-body {
   .tv-col-status { grid-area: status; }
   .tv-col-occ { grid-area: occ; }
 
+  .tv-loc-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 11px 14px;
+  }
+
   .tv-plan-row {
     grid-template-columns: 1fr auto;
     grid-template-areas:
@@ -587,10 +584,6 @@ body.tv-body {
   .tv-plan-time { grid-area: time; }
   .tv-plan-badge { grid-area: badge; }
   .tv-plan-info { grid-area: info; }
-
-  .tv-location-legend {
-    grid-template-columns: 1fr;
-  }
 
   .tv-flash-msg {
     font-size: 13.5px;

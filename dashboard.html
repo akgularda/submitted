@@ -4,26 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kampüs TV Ekranı | SubmitTED 2026</title>
-  <meta name="description" content="SubmitTED Kariyer Zirvesi 2026 TV ekranı: canlı bölge yoğunlukları, yaklaşan konferans bildirimleri, günün planı ve 2D kampüs krokisi.">
+  <meta name="description" content="SubmitTED Kariyer Zirvesi 2026 pasif TV bilgi ekranı: canlı bölge yoğunlukları, konum rehberi ve günün planı.">
   <link rel="icon" type="image/svg+xml" href="assets/submitted-mark.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="dashboard.css?v=20261124tv4">
+  <link rel="stylesheet" href="dashboard.css?v=20261125tv5">
 </head>
 <body class="tv-body">
 
-  <!-- Clean Executive TV Header -->
+  <!-- Passive Executive TV Header (Zero Buttons, Zero Links) -->
   <header class="tv-header">
     <div class="tv-wrap tv-header-inner">
       <div class="tv-brand">
-        <a href="index.html" class="tv-logo-link" aria-label="SubmitTED Ana Sayfa">
-          <img src="assets/submitted-logo-white.svg" alt="SubmitTED Kariyer Zirvesi Logo" class="tv-logo">
-        </a>
+        <img src="assets/submitted-logo-white.svg" alt="SubmitTED Kariyer Zirvesi Logo" class="tv-logo">
         <span class="tv-title-sep" aria-hidden="true"></span>
         <div class="tv-title-group">
-          <h1 id="tv-board-title">Kampüs Doluluk ve Zirve Akışı</h1>
-          <span id="tv-board-sub">TED Üniversitesi · Canlı Zirve Ekranı</span>
+          <h1>Kampüs Doluluk ve Zirve Akışı</h1>
+          <span>TED Üniversitesi · Canlı Bilgi Ekranı</span>
         </div>
       </div>
 
@@ -33,29 +31,37 @@
           <strong id="dash-total-inside">646 / 983</strong>
         </div>
         <div class="tv-clock-box">
-          <span id="tv-clock-label">Anlık Saat</span>
+          <span id="tv-clock-label">Zirve Saati</span>
           <strong id="dash-clock">--:--</strong>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Main TV Canvas: Left = Zones + Stacked Daily Plan | Right = 2D Campus Map & Locations -->
+  <!-- Pure Passive TV Display: Left = Zone Occupancy | Right = Text Locations + Vertical Daily Plan -->
   <main class="tv-main">
     <div class="tv-wrap tv-grid">
 
-      <!-- Left Column: Zone Occupancy (no Location column) + Vertical Daily Plan -->
-      <div class="tv-left-stack">
-        <section class="tv-card-panel" aria-label="Bölge Yoğunlukları">
-          <div class="tv-panel-head tv-zones-head" id="tv-panel-head">
-            <span>Bölge &amp; Yaklaşan Akış</span>
-            <span>Doluluk</span>
-            <span style="text-align:right">Durum</span>
+      <!-- Left Column: Zone Occupancy Table (No Location Column, Non-Interactive) -->
+      <section class="tv-card-panel" aria-label="Bölge Yoğunlukları">
+        <div class="tv-panel-head">
+          <span>Bölge &amp; Yaklaşan Akış</span>
+          <span>Doluluk</span>
+          <span style="text-align:right">Durum</span>
+        </div>
+        <div class="tv-rows" id="tv-rows"></div>
+      </section>
+
+      <!-- Right Column: Clear Text-Based Zone Locations (No 2D Kroki) + Vertical Daily Plan -->
+      <div class="tv-right-stack">
+        <section class="tv-card-panel" aria-label="Bölge Konumları">
+          <div class="tv-section-head">
+            <h2>Alan ve Konum Rehberi</h2>
+            <span id="tv-balance-hint">İncesu ↔ Aksu (~2 dk)</span>
           </div>
-          <div class="tv-rows" id="tv-rows"></div>
+          <div class="tv-loc-list" id="tv-loc-list"></div>
         </section>
 
-        <!-- Vertical Stacked Daily Schedule ("Günün Planı" Alt Alta) -->
         <section class="tv-card-panel" aria-label="Günün Planı">
           <div class="tv-section-head">
             <h2>Günün Planı</h2>
@@ -65,105 +71,6 @@
         </section>
       </div>
 
-      <!-- Right Column: Clean 2D Campus Kroki + Explicit Zone Locations -->
-      <aside class="tv-card-panel tv-map-panel" aria-label="2D Kampüs Krokisi ve Konumlar">
-        <div class="tv-section-head">
-          <h2>Kampüs Yerleşimi ve Konumlar (2D Kroki)</h2>
-          <span id="tv-balance-hint">İncesu ↔ Aksu (~2 dk yürüme)</span>
-        </div>
-
-        <div class="kroki-canvas">
-          <svg viewBox="0 0 640 470" class="kroki-svg" role="img" aria-label="TEDÜ Kampüs 2D Konum Krokisi">
-            <!-- Campus Grounds -->
-            <rect x="14" y="16" width="276" height="438" rx="2" fill="#0d1317" stroke="#222c34" stroke-width="1.5"/>
-            <rect x="350" y="16" width="276" height="438" rx="2" fill="#0d1317" stroke="#222c34" stroke-width="1.5"/>
-
-            <!-- Campus Wing Titles -->
-            <text x="28" y="42" fill="#8b97a2" font-family="Outfit, sans-serif" font-size="13" font-weight="700" letter-spacing="0.8">AKSU YERLEŞKESİ (BATI)</text>
-            <text x="364" y="42" fill="#8b97a2" font-family="Outfit, sans-serif" font-size="13" font-weight="700" letter-spacing="0.8">İNCESU YERLEŞKESİ (DOĞU)</text>
-
-            <!-- Ziya Gokalp Street Divider -->
-            <rect x="298" y="16" width="44" height="438" fill="#07090b" stroke="#1b232a" stroke-width="1"/>
-            <line x1="320" y1="30" x2="320" y2="440" stroke="#2e3b46" stroke-width="2" stroke-dasharray="7 7"/>
-            <text x="320" y="142" fill="#7d8a96" font-family="Outfit, sans-serif" font-size="11.5" font-weight="700" text-anchor="middle" transform="rotate(-90 320 142)" letter-spacing="1.6">ZİYA GÖKALP CADDESİ</text>
-
-            <!-- Connecting Walkway -->
-            <line x1="274" y1="382" x2="366" y2="382" stroke="#3c4b57" stroke-width="1.5" stroke-dasharray="4 4"/>
-            <rect x="291" y="369" width="58" height="24" rx="2" fill="#131c23" stroke="#2c3a46"/>
-            <text x="320" y="385" fill="#d7e0e7" font-family="Inter Tight, sans-serif" font-size="10.5" font-weight="600" text-anchor="middle">~2 dk</text>
-
-            <!-- AKSU: G BLOK (One-to-One) -->
-            <g class="kroki-block" data-kroki-zone="one-to-one">
-              <rect x="28" y="60" width="246" height="80" rx="2" fill="#111a22" stroke="#1D4F7C" stroke-width="2" data-kroki-box="one-to-one"/>
-              <rect x="28" y="60" width="6" height="80" fill="#1D4F7C"/>
-              <text x="44" y="86" fill="#ffffff" font-family="Outfit, sans-serif" font-size="15.5" font-weight="700">One-to-One Meetings</text>
-              <text x="44" y="106" fill="#9fb0bd" font-family="Inter Tight, sans-serif" font-size="12">Konum: G Blok · Görüşme Odaları</text>
-              <text x="44" y="126" fill="#7fa8cc" font-family="Inter Tight, sans-serif" font-size="11.5" font-weight="600">Birebir İK Mülakat Seansları</text>
-              <text x="260" y="94" fill="#ffffff" font-family="Outfit, sans-serif" font-size="22" font-weight="800" text-anchor="end" data-kroki-pct="one-to-one">%79</text>
-            </g>
-
-            <!-- AKSU: D BLOK (Tech&Innovation) -->
-            <g class="kroki-block" data-kroki-zone="tech">
-              <rect x="28" y="156" width="128" height="156" rx="2" fill="#0f1c16" stroke="#00A847" stroke-width="2" data-kroki-box="tech"/>
-              <rect x="28" y="156" width="6" height="156" fill="#00A847"/>
-              <text x="44" y="182" fill="#ffffff" font-family="Outfit, sans-serif" font-size="14.5" font-weight="700">Tech &amp;</text>
-              <text x="44" y="200" fill="#ffffff" font-family="Outfit, sans-serif" font-size="14.5" font-weight="700">Innovation</text>
-              <text x="44" y="222" fill="#9fb0bd" font-family="Inter Tight, sans-serif" font-size="11.5">D Blok · D-104</text>
-              <text x="44" y="246" fill="#63d490" font-family="Inter Tight, sans-serif" font-size="11.5" font-weight="600">Konferans</text>
-              <text x="44" y="262" fill="#63d490" font-family="Inter Tight, sans-serif" font-size="11.5" font-weight="600">Amfisi</text>
-              <text x="44" y="298" fill="#ffffff" font-family="Outfit, sans-serif" font-size="22" font-weight="800" data-kroki-pct="tech">%77</text>
-            </g>
-
-            <!-- AKSU: AVLU (Food&Beverage) -->
-            <g class="kroki-block" data-kroki-zone="food-beverage">
-              <rect x="168" y="156" width="106" height="156" rx="2" fill="#1b160d" stroke="#D97706" stroke-width="2" data-kroki-box="food-beverage"/>
-              <rect x="168" y="156" width="6" height="156" fill="#D97706"/>
-              <text x="182" y="182" fill="#ffffff" font-family="Outfit, sans-serif" font-size="14" font-weight="700">Food &amp;</text>
-              <text x="182" y="200" fill="#ffffff" font-family="Outfit, sans-serif" font-size="14" font-weight="700">Beverage</text>
-              <text x="182" y="222" fill="#c7b59a" font-family="Inter Tight, sans-serif" font-size="11.5">C/F Avlu</text>
-              <text x="182" y="246" fill="#f3b664" font-family="Inter Tight, sans-serif" font-size="11.5" font-weight="600">İkram &amp;</text>
-              <text x="182" y="262" fill="#f3b664" font-family="Inter Tight, sans-serif" font-size="11.5" font-weight="600">Mola</text>
-              <text x="182" y="298" fill="#ffffff" font-family="Outfit, sans-serif" font-size="22" font-weight="800" data-kroki-pct="food-beverage">%59</text>
-            </g>
-
-            <!-- AKSU: E BLOK SPOR MERKEZI (Blue Zone) -->
-            <g class="kroki-block" data-kroki-zone="blue">
-              <rect x="28" y="328" width="246" height="108" rx="2" fill="#0f1724" stroke="#1570EF" stroke-width="2" data-kroki-box="blue"/>
-              <rect x="28" y="328" width="6" height="108" fill="#1570EF"/>
-              <text x="44" y="356" fill="#ffffff" font-family="Outfit, sans-serif" font-size="17" font-weight="700">Blue Zone</text>
-              <text x="44" y="376" fill="#9fb0bd" font-family="Inter Tight, sans-serif" font-size="12">Konum: Spor Merkezi (E Blok)</text>
-              <text x="44" y="398" fill="#6aa8ff" font-family="Inter Tight, sans-serif" font-size="11.5" font-weight="600">ASELSAN · TUSAŞ · MİLSOFT</text>
-              <text x="44" y="416" fill="#6aa8ff" font-family="Inter Tight, sans-serif" font-size="11.5" font-weight="600">FNSS · ROKETSAN · GAMA ENERJİ</text>
-              <text x="260" y="364" fill="#ffffff" font-family="Outfit, sans-serif" font-size="24" font-weight="800" text-anchor="end" data-kroki-pct="blue">%49</text>
-            </g>
-
-            <!-- INCESU: A / B BLOK (Teacher+) -->
-            <g class="kroki-block" data-kroki-zone="teacher-plus">
-              <rect x="366" y="60" width="246" height="156" rx="2" fill="#171426" stroke="#6E56CF" stroke-width="2" data-kroki-box="teacher-plus"/>
-              <rect x="366" y="60" width="6" height="156" fill="#6E56CF"/>
-              <text x="382" y="90" fill="#ffffff" font-family="Outfit, sans-serif" font-size="17" font-weight="700">Teacher+ Zone</text>
-              <text x="382" y="112" fill="#9fb0bd" font-family="Inter Tight, sans-serif" font-size="12.5">Konum: A / B Blok Konferans Salonu</text>
-              <text x="382" y="142" fill="#b4a3ff" font-family="Inter Tight, sans-serif" font-size="12" font-weight="600">Eğitim ve Akademik Konferanslar</text>
-              <text x="382" y="196" fill="#ffffff" font-family="Outfit, sans-serif" font-size="24" font-weight="800" data-kroki-pct="teacher-plus">%68</text>
-            </g>
-
-            <!-- INCESU: K BLOK FUAYE (Red Zone) -->
-            <g class="kroki-block" data-kroki-zone="red">
-              <rect x="366" y="232" width="246" height="204" rx="2" fill="#211214" stroke="#D92D20" stroke-width="2" data-kroki-box="red"/>
-              <rect x="366" y="232" width="6" height="204" fill="#D92D20"/>
-              <text x="382" y="266" fill="#ffffff" font-family="Outfit, sans-serif" font-size="18" font-weight="700">Red Zone</text>
-              <text x="382" y="288" fill="#d0b7b5" font-family="Inter Tight, sans-serif" font-size="12.5">Konum: Fuaye Alanı (K Blok)</text>
-              <text x="382" y="324" fill="#ff958d" font-family="Inter Tight, sans-serif" font-size="12" font-weight="600">Akfen · DenizBank · EY Türkiye</text>
-              <text x="382" y="344" fill="#ff958d" font-family="Inter Tight, sans-serif" font-size="12" font-weight="600">Coca-Cola İçecek · KPMG · Anadolu Efes</text>
-              <text x="382" y="416" fill="#ffffff" font-family="Outfit, sans-serif" font-size="26" font-weight="800" data-kroki-pct="red">%82</text>
-            </g>
-          </svg>
-        </div>
-
-        <!-- Explicit Zone-to-Location Key (2D Kroki Rehberi) -->
-        <div class="tv-location-legend" id="tv-location-legend"></div>
-      </aside>
-
     </div>
   </main>
 
@@ -171,7 +78,7 @@
   <footer class="tv-bottom-bar" id="fids-bottom-call" aria-live="polite">
     <div class="tv-wrap tv-bottom-inner">
       <div class="tv-flash-wrap">
-        <span class="tv-live-badge" id="routing-badge">Yaklaşan Oturum</span>
+        <span class="tv-live-badge" id="routing-badge">15 dk içinde</span>
         <span class="tv-flash-msg" id="routing-copy">
           15 dk içinde → ASELSAN Söyleşisi (Tech&amp;Innovation Zone · D Blok Amfi)
         </span>
@@ -180,7 +87,7 @@
     </div>
   </footer>
 
-  <script src="telemetry.js?v=20261124tv4"></script>
-  <script src="dashboard.js?v=20261124tv4"></script>
+  <script src="telemetry.js?v=20261125tv5"></script>
+  <script src="dashboard.js?v=20261125tv5"></script>
 </body>
 </html>
