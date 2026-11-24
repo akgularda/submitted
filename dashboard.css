@@ -263,6 +263,7 @@ body.tv-body {
 .tv-zone-detail.is-urgent {
   color: #f7c368;
   font-weight: 600;
+  animation: tvSoftPulse 2.2s ease-in-out infinite;
 }
 
 .tv-col-occ {
@@ -435,11 +436,14 @@ body.tv-body {
 .tv-plan-badge.is-soon {
   background-color: var(--tv-amber);
   color: #050708;
+  animation: tvSoftPulse 2.2s ease-in-out infinite;
 }
 
 .tv-plan-badge.is-live {
   background-color: var(--tv-green);
   color: #050708;
+  animation: tvSoftPulse 1.8s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(39, 201, 107, 0.35);
 }
 
 .tv-plan-badge.is-zone {
@@ -505,7 +509,10 @@ body.tv-body {
 
 @media (prefers-reduced-motion: reduce) {
   .tv-live-badge,
-  .tv-flash-msg {
+  .tv-flash-msg,
+  .tv-plan-badge.is-soon,
+  .tv-plan-badge.is-live,
+  .tv-zone-detail.is-urgent {
     animation: none;
   }
 }
