@@ -1,134 +1,140 @@
 // SubmitTED Kariyer Zirvesi 2026 — Shared Telemetry, Zone Occupancy, Location QR Check-In,
 // Summit Passport, Cross-Campus Balancing & Live Session Routing Engine.
-// Works seamlessly offline via BroadcastChannel + localStorage, with optional Supabase bridge.
+// Red Zone & Blue Zone = Company Stands; all other Zones = Scheduled Conference / Session Halls.
 
 (function (global) {
   'use strict';
 
-  const STORAGE_KEY = 'submitted26_telemetry_v2';
+  const STORAGE_KEY = 'submitted26_telemetry_v3';
   const ATTENDEE_KEY = 'submitted26_attendee_v2';
   const PASSPORT_KEY = 'submitted26_passport_v2';
-  const SESSION_TTL_MS = 90 * 60 * 1000; // 90-minute safety auto-checkout TTL
+  const SESSION_TTL_MS = 90 * 60 * 1000;
 
   const ZONES = [
     {
       id: 'red',
+      zoneType: 'stands',
       name: 'Red Zone',
       shortName: 'Red Zone',
-      subtitle: '1. İşveren Alanı · Fuaye Alanı',
+      subtitle: '1. İşveren Alanı · Fuaye Alanı (Şirket Stantları)',
       campusSide: 'İncesu Yerleşkesi',
       building: 'K Blok · Ana Fuaye Alanı',
       color: '#D92D20',
       capacity: 250,
-      defaultCount: 208,
+      defaultCount: 204,
       camera: 'incesu',
       walkingHint: 'Ziya Gökalp doğu kanadı, ana girişten 1 dk.',
-      description: 'İncesu kanadındaki K Blok Ana Fuaye Alanında birinci küme işveren stantları, finans/danışmanlık firmaları ve ana karşılama hattı yer alır.',
-      companies: [
-        { id: 'stand-akfen', name: 'Akfen Holding', role: 'Altyapı & Yatırım', desk: 'Stant R-01 · Fuaye Kuzey', capacity: 35, defaultCount: 29 },
-        { id: 'stand-denizbank', name: 'DenizBank', role: 'Finans & Bankacılık', desk: 'Stant R-02 · Fuaye Merkez', capacity: 40, defaultCount: 34 },
-        { id: 'stand-ey', name: 'EY Türkiye', role: 'Denetim & Danışmanlık', desk: 'Stant R-03 · Fuaye Doğu', capacity: 45, defaultCount: 39 },
-        { id: 'stand-cci', name: 'Coca-Cola İçecek', role: 'Hızlı Tüketim (FMCG)', desk: 'Stant R-04 · Fuaye Güney', capacity: 45, defaultCount: 36 },
-        { id: 'stand-kpmg', name: 'KPMG Türkiye', role: 'Danışmanlık & Vergi', desk: 'Stant R-05 · Fuaye Hol', capacity: 40, defaultCount: 31 },
-        { id: 'stand-efes', name: 'Anadolu Efes', role: 'Pazarlama & MT Programı', desk: 'Stant R-06 · Fuaye Çıkış', capacity: 45, defaultCount: 39 }
+      description: 'İncesu kanadındaki K Blok Ana Fuaye Alanında birinci küme şirket stantları yer alır.',
+      items: [
+        { id: 'stand-akfen', timeSlot: 'STANT R-01', name: 'Akfen Holding', role: 'Altyapı & Yatırım', desk: 'K Blok Fuaye Kuzey', capacity: 35, defaultCount: 28 },
+        { id: 'stand-denizbank', timeSlot: 'STANT R-02', name: 'DenizBank', role: 'Finans & Bankacılık', desk: 'K Blok Fuaye Merkez', capacity: 40, defaultCount: 33 },
+        { id: 'stand-ey', timeSlot: 'STANT R-03', name: 'EY Türkiye', role: 'Denetim & Danışmanlık', desk: 'K Blok Fuaye Doğu', capacity: 45, defaultCount: 39 },
+        { id: 'stand-cci', timeSlot: 'STANT R-04', name: 'Coca-Cola İçecek', role: 'Hızlı Tüketim (FMCG)', desk: 'K Blok Fuaye Güney', capacity: 45, defaultCount: 36 },
+        { id: 'stand-kpmg', timeSlot: 'STANT R-05', name: 'KPMG Türkiye', role: 'Danışmanlık & Vergi', desk: 'K Blok Fuaye Hol', capacity: 40, defaultCount: 31 },
+        { id: 'stand-efes', timeSlot: 'STANT R-06', name: 'Anadolu Efes', role: 'Pazarlama & MT Programı', desk: 'K Blok Fuaye Çıkış', capacity: 45, defaultCount: 37 }
       ]
     },
     {
       id: 'blue',
+      zoneType: 'stands',
       name: 'Blue Zone',
       shortName: 'Blue Zone',
-      subtitle: '2. İşveren Alanı · Spor Merkezi',
+      subtitle: '2. İşveren Alanı · Spor Merkezi (Şirket Stantları)',
       campusSide: 'Aksu Yerleşkesi',
       building: 'E Blok · TEDÜ Spor Merkezi',
       color: '#1570EF',
       capacity: 300,
-      defaultCount: 144,
+      defaultCount: 148,
       camera: 'aksu',
-      walkingHint: 'Red Zone (Fuaye)’den Aksu alt geçit / Ziya Gökalp ile ~2 dk yürüme.',
-      description: 'Aksu kanadındaki E Blok Spor Merkezinde savunma sanayi, mühendislik ve havacılık şirketlerinin geniş ölçekli kurumsal stantları bulunur.',
-      companies: [
-        { id: 'stand-aselsan', name: 'ASELSAN', role: 'Savunma & Yüksek Teknoloji', desk: 'Stant B-01 · Spor Salonu Ana Ekseni', capacity: 65, defaultCount: 38 },
-        { id: 'stand-tusas', name: 'TUSAŞ', role: 'Havacılık & Uzay', desk: 'Stant B-02 · Spor Salonu Kuzey', capacity: 55, defaultCount: 28 },
-        { id: 'stand-fnss', name: 'FNSS', role: 'Savunma Sistemleri', desk: 'Stant B-03 · Spor Salonu Doğu', capacity: 45, defaultCount: 21 },
-        { id: 'stand-havelsan', name: 'HAVELSAN', role: 'Yazılım & Komuta Kontrol', desk: 'Stant B-04 · Spor Salonu Merkez', capacity: 50, defaultCount: 26 },
-        { id: 'stand-roketsan', name: 'ROKETSAN', role: 'Uzay & İtki Teknolojileri', desk: 'Stant B-05 · Spor Salonu Güney', capacity: 45, defaultCount: 17 },
-        { id: 'stand-gama', name: 'GAMA Enerji', role: 'Enerji & Mühendislik', desk: 'Stant B-06 · Spor Salonu Giriş', capacity: 40, defaultCount: 14 }
+      walkingHint: 'Red Zone (Fuaye)’den Ziya Gökalp geçişiyle ~2 dk yürüme.',
+      description: 'Aksu kanadındaki E Blok Spor Merkezinde ikinci küme şirket stantları ve savunma/teknoloji işverenleri yer alır.',
+      items: [
+        { id: 'stand-aselsan', timeSlot: 'STANT B-01', name: 'ASELSAN', role: 'Savunma & Yüksek Teknoloji', desk: 'Spor Salonu Ana Ekseni', capacity: 60, defaultCount: 36 },
+        { id: 'stand-tusas', timeSlot: 'STANT B-02', name: 'TUSAŞ', role: 'Havacılık & Uzay', desk: 'Spor Salonu Kuzey', capacity: 55, defaultCount: 28 },
+        { id: 'stand-milsoft', timeSlot: 'STANT B-03', name: 'MİLSOFT', role: 'Yazılım & Komuta Kontrol', desk: 'Spor Salonu Merkez', capacity: 45, defaultCount: 23 },
+        { id: 'stand-fnss', timeSlot: 'STANT B-04', name: 'FNSS', role: 'Savunma Sistemleri', desk: 'Spor Salonu Doğu', capacity: 45, defaultCount: 21 },
+        { id: 'stand-roketsan', timeSlot: 'STANT B-05', name: 'ROKETSAN', role: 'Uzay & İtki Teknolojileri', desk: 'Spor Salonu Güney', capacity: 50, defaultCount: 24 },
+        { id: 'stand-gama', timeSlot: 'STANT B-06', name: 'GAMA Enerji', role: 'Enerji & Mühendislik', desk: 'Spor Salonu Giriş', capacity: 45, defaultCount: 16 }
       ]
     },
     {
       id: 'tech',
+      zoneType: 'conference',
       name: 'Tech&Innovation Zone',
       shortName: 'Tech&Innovation',
-      subtitle: 'Teknoloji, AI & Konuşma Amfisi',
+      subtitle: 'Konferans & Söyleşi Salonu (Stant Yoktur)',
       campusSide: 'Aksu Yerleşkesi',
-      building: 'D Blok · Amfi Salon D-104 & Sergi',
+      building: 'D Blok · Amfi Salon D-104',
       color: '#00A847',
       capacity: 120,
-      defaultCount: 88,
+      defaultCount: 92,
       camera: 'aksu',
       walkingHint: 'Aksu avlusunun batı cephesi (Spor Merkezinden 1 dk).',
-      description: 'Yapay zeka, savunma sistemleri, ürün yönetimi panelleri ve kurumsal teknoloji demolarının gerçekleştiği ana teknik konuşma alanı.',
-      companies: [
-        { id: 'tech-aselsan-stage', name: 'ASELSAN · Teknoloji Konuşması', role: 'D-104 Ana Teknik Amfi', desk: 'Amfi Sahne · Konuşma & Q&A', capacity: 60, defaultCount: 49 },
-        { id: 'tech-ey-lab', name: 'EY Türkiye · YZ & Veri Lab', role: 'Deneyim Masası T-01', desk: 'D Blok Koridor Demo İstasyonu', capacity: 30, defaultCount: 21 },
-        { id: 'tech-tedu-proto', name: 'TEDÜ Ar-Ge & Teknopark Vitrini', role: 'Öğrenci & Girişim Demoları', desk: 'D Blok Fuaye Sergi Hattı', capacity: 30, defaultCount: 18 }
+      description: 'Şirket stantlarının yer almadığı; teknoloji söyleşileri, mühendislik ve yapay zeka konferanslarının yapıldığı amfi salonu.',
+      items: [
+        { id: 'tech-ey-1030', timeSlot: '10.30 – 11.45', name: 'EY Türkiye · Üretken Yapay Zeka ve Veri Analitiği', role: 'Konferans Oturumu', desk: 'D Blok Amfi Salon D-104', capacity: 120, defaultCount: 74 },
+        { id: 'tech-aselsan-1200', timeSlot: '12.00 – 13.30', name: 'ASELSAN Söyleşisi', role: 'Savunma & Yüksek Teknolojide Yetenek', desk: 'D Blok Amfi Salon D-104', capacity: 120, defaultCount: 102 },
+        { id: 'tech-milsoft-1330', timeSlot: '13.30 – 14.15', name: 'MİLSOFT Konferansı', role: 'Büyük Ölçekli Yazılım ve Sistem Mimarileri', desk: 'D Blok Amfi Salon D-104', capacity: 120, defaultCount: 88 },
+        { id: 'tech-tusas-1430', timeSlot: '14.30 – 16.00', name: 'TUSAŞ · Havacılık ve Mühendislik Oturumu', role: 'Konferans & Soru-Cevap', desk: 'D Blok Amfi Salon D-104', capacity: 120, defaultCount: 81 }
       ]
     },
     {
       id: 'one-to-one',
+      zoneType: 'conference',
       name: 'One-to-One Meetings Zone',
       shortName: '1:1 Meetings',
-      subtitle: 'Randevulu Mülakat & CV Kabinleri',
+      subtitle: 'Randevulu Mülakat & Görüşme Salonu',
       campusSide: 'Aksu Yerleşkesi',
-      building: 'G Blok · 12 Adet 1:1 Görüşme Kabini',
+      building: 'G Blok · Görüşme Odaları',
       color: '#1D4F7C',
       capacity: 48,
-      defaultCount: 39,
+      defaultCount: 38,
       camera: 'interviews',
       walkingHint: 'Aksu avlusunun kuzey kanadı (G Blok zemin kat).',
-      description: 'Öğrencilerin İK uzmanlarıyla masadaki/kabindeki QR kodunu okutarak katıldığı 15 dakikalık birebir ön mülakat ve CV kliniği bölgesi.',
-      companies: [
-        { id: '1on1-aselsan', name: 'ASELSAN · Kabin 01–03', role: 'Mühendislik Staj & Yeni Mezun', desk: 'G Blok Kabin 01–03', capacity: 12, defaultCount: 11 },
-        { id: '1on1-tusas-fnss', name: 'TUSAŞ & FNSS · Kabin 04–06', role: 'Aday Mühendislik Görüşmeleri', desk: 'G Blok Kabin 04–06', capacity: 12, defaultCount: 10 },
-        { id: '1on1-deniz-ey', name: 'DenizBank & EY · Kabin 07–09', role: 'MT & Denetim Ön Mülakat', desk: 'G Blok Kabin 07–09', capacity: 12, defaultCount: 9 },
-        { id: '1on1-cv-clinic', name: 'TEDÜ Kariyer · CV Kliniği', role: 'Hızlı Portfolyo & CV Kontrol', desk: 'G Blok Masa 10–12', capacity: 12, defaultCount: 9 }
+      description: 'Gün boyu saat dilimlerine bölünmüş 1:1 İK ön mülakatları ve birebir CV değerlendirme oturumları.',
+      items: [
+        { id: '1on1-morning', timeSlot: '10.00 – 12.30', name: 'Mühendislik & Teknoloji 1:1 Ön Mülakat Seansı', role: 'Randevulu 15 Dk Görüşmeler', desk: 'G Blok Kabin 01–12', capacity: 48, defaultCount: 41 },
+        { id: '1on1-afternoon', timeSlot: '13.30 – 15.30', name: 'Finans, Danışmanlık & FMCG 1:1 Seansı', role: 'MT & Staj Görüşmeleri', desk: 'G Blok Kabin 01–12', capacity: 48, defaultCount: 39 },
+        { id: '1on1-cv', timeSlot: '15.45 – 17.15', name: 'CV & LinkedIn Profil İnceleme Oturumu', role: 'Birebir Geri Bildirim', desk: 'G Blok Değerlendirme Salonu', capacity: 48, defaultCount: 34 }
       ]
     },
     {
       id: 'teacher-plus',
+      zoneType: 'conference',
       name: 'Teacher+ Zone',
       shortName: 'Teacher+ Zone',
-      subtitle: 'Akademisyen–Sektör & Yuvarlak Masa',
+      subtitle: 'Eğitim & Akademik Konferans Salonu (Stant Yoktur)',
       campusSide: 'İncesu Yerleşkesi',
-      building: 'A / B Blok · Yönetici & Akademi Salonları',
+      building: 'A / B Blok · Konferans Salonu',
       color: '#6E56CF',
-      capacity: 50,
-      defaultCount: 24,
+      capacity: 80,
+      defaultCount: 54,
       camera: 'incesu',
-      walkingHint: 'İncesu A Blok & B Blok birleşim katı.',
-      description: 'Öğretim üyeleri, C-level yöneticiler ve seçilmiş öğrenci gruplarının vaka analizleri ve Co-op müfredat buluşmaları gerçekleştirdiği özel bölge.',
-      companies: [
-        { id: 'roundtable-a', name: 'Yuvarlak Masa A · Akfen & GAMA', role: 'Liderlik & Proje Vaka Oturumu', desk: 'A Blok Oda A-201 · Masa QR', capacity: 16, defaultCount: 10 },
-        { id: 'roundtable-b', name: 'Yuvarlak Masa B · Coca-Cola İçecek', role: 'Tedarik Zinciri & Yönetim Vakası', desk: 'B Blok Oda B-204 · Masa QR', capacity: 16, defaultCount: 8 },
-        { id: 'teacher-lounge', name: 'Teacher+ Akademi–İK Buluşması', role: 'Öğretim Üyesi & Sektör Lounge', desk: 'A Blok Akademik Salon', capacity: 18, defaultCount: 6 }
+      walkingHint: 'İncesu A Blok girişi, Red Zone fuayesinin yanı.',
+      description: 'Akademisyenler, eğitim liderleri ve öğretmen adayları için konferans ve söyleşilerin düzenlendiği salon.',
+      items: [
+        { id: 'teacher-tedu-1100', timeSlot: '11.00 – 12.15', name: 'TEDÜ Eğitim Fakültesi · Geleceğin Öğrenme Ortamları', role: 'Açılış Konferansı', desk: 'A Blok Konferans Salonu', capacity: 80, defaultCount: 46 },
+        { id: 'teacher-cagiltay-1400', timeSlot: '14.00 – 15.00', name: 'Prof. Dr. Kürşat Çağıltay Konferansı', role: 'Eğitim Teknolojileri ve Araştırma', desk: 'A Blok Konferans Salonu', capacity: 80, defaultCount: 68 },
+        { id: 'teacher-tedkolej-1600', timeSlot: '16.00 – 17.00', name: 'TED Ankara Koleji İK Müdürü', role: 'Eğitim Kurumlarında Yetenek & İK Süreçleri', desk: 'A Blok Konferans Salonu', capacity: 80, defaultCount: 51 }
       ]
     },
     {
       id: 'food-beverage',
+      zoneType: 'conference',
       name: 'Food&Beverage Zone',
       shortName: 'Food&Beverage',
-      subtitle: 'İkram, Kahve & Açık Hava Networking',
+      subtitle: 'İkram, Kahve Molası & Sosyal Alan',
       campusSide: 'Aksu & İncesu Avlu',
-      building: 'C / F Blok Arası & İncesu Bahçe',
+      building: 'C / F Arası & İncesu Bahçe',
       color: '#D97706',
       capacity: 185,
-      defaultCount: 112,
+      defaultCount: 110,
       camera: 'campus',
-      walkingHint: 'Hem Aksu hem İncesu açık avlularında merkez nokta.',
-      description: 'Zirve boyunca ücretsiz kahve ikramı, öğle yemek noktaları ve öğrenciler ile şirket temsilcilerinin rahat ortamda sosyalleştiği avlu bölgesi.',
-      companies: [
-        { id: 'food-aksu', name: 'Aksu Avlu İkram & Kahve Merkezi', role: 'Ana Yemek & Sıcak İçecek Hattı', desk: 'C / F Blok Arası Avlu', capacity: 110, defaultCount: 68 },
-        { id: 'food-incesu', name: 'İncesu Bahçe Espresso & Tatlı Bar', role: 'Hızlı Kahve & Açık Oturma', desk: 'K Blok Çıkış Avlusu', capacity: 75, defaultCount: 44 }
+      walkingHint: 'Oturum aralarında Aksu ve İncesu ortak avluları.',
+      description: 'Konferans aralarında sıcak içecek, öğle ikramı ve açık hava dinlenme saatleri.',
+      items: [
+        { id: 'food-coffee-allday', timeSlot: '09.30 – 17.30', name: 'Gün Boyu Kahve & Atıştırmalık Servisi', role: 'İkram & Mola Noktası', desk: 'İncesu & Aksu Avlu', capacity: 185, defaultCount: 96 },
+        { id: 'food-lunch-1215', timeSlot: '12.15 – 14.00', name: 'Öğle Arası & Kampüs İkram Saati', role: 'Ana Öğle Servisi', desk: 'Aksu Merkezi Avlu', capacity: 185, defaultCount: 142 }
       ]
     }
   ];
@@ -136,54 +142,63 @@
   const ROUTING_PRESETS = [
     {
       id: 'aselsan-tech',
-      badge: 'CANLI YÖNLENDİRME · 10 DK İÇİNDE',
-      speaker: 'ASELSAN · Genel Müdür Yardımcısı Ahmet Kaya',
-      title: 'Savunma ve Yüksek Teknolojide Yetenek Ekosistemi başlıyor',
+      badge: 'SAAT 12.00 – 13.30 · KONFERANS ÇAĞRISI',
+      speaker: 'ASELSAN Söyleşisi',
+      title: 'Tech&Innovation Zone’da başlıyor (D Blok · Amfi Salon D-104)',
       targetZoneId: 'tech',
-      actionText: 'Tech&Innovation Zone (D Blok · Aksu)’na Geçiniz →',
-      ticker: 'RadioTEDU Zirve Akışı · ASELSAN Konuşması 10 dk içinde Tech&Innovation Zone (D Blok)’da başlıyor · Aksu yerleşkesi D Blok batı girişini kullanabilirsiniz.'
+      actionText: 'Tech&Innovation Programını Aç →',
+      ticker: '12.00 – 13.30 ASELSAN SÖYLEŞİSİ · TECH&INNOVATION ZONE (D BLOK AMFİ D-104)'
     },
     {
-      id: 'tusas-1on1',
-      badge: 'RANDEVU ÇAĞRISI · ŞİMDİ',
-      speaker: 'TUSAŞ & FNSS · Yetenek Kazanımı Ekibi',
-      title: 'Aday Mühendislik 1:1 Hızlı Mülakat slotları açıldı',
-      targetZoneId: 'one-to-one',
-      actionText: 'One-to-One Meetings Zone (G Blok)’a Yönleniniz →',
-      ticker: 'RadioTEDU Canlı · G Blok Kabin 04–06 boşaldı · One-to-One Meetings Zone’da QR okutarak sıranızı onaylayabilirsiniz.'
+      id: 'milsoft-tech',
+      badge: 'SAAT 13.30 – 14.15 · KONFERANS ÇAĞRISI',
+      speaker: 'MİLSOFT Konferansı',
+      title: 'Tech&Innovation Zone’da devam ediyor (D Blok · Amfi Salon D-104)',
+      targetZoneId: 'tech',
+      actionText: 'Tech&Innovation Programını Aç →',
+      ticker: '13.30 – 14.15 MİLSOFT KONFERANSI · TECH&INNOVATION ZONE (D BLOK AMFİ D-104)'
     },
     {
-      id: 'akfen-red-roundtable',
-      badge: 'OTURUM BAŞLANGICI · 14:30',
-      speaker: 'Akfen Holding & GAMA Enerji',
-      title: 'Altyapı ve Enerjide Genç Liderler Yuvarlak Masa Oturumu',
+      id: 'cagiltay-teacher',
+      badge: 'SAAT 14.00 – 15.00 · KONFERANS ÇAĞRISI',
+      speaker: 'Prof. Dr. Kürşat Çağıltay Konferansı',
+      title: 'Teacher+ Zone’da başlıyor (A Blok Konferans Salonu)',
       targetZoneId: 'teacher-plus',
-      actionText: 'Teacher+ Zone (A Blok · İncesu)’na Geçiniz →',
-      ticker: 'RadioTEDU Kampüs Yayını · Yuvarlak Masa A (Teacher+ Zone) katılımcıları A Blok A-201 masalarındaki QR kodunu okutmalıdır.'
+      actionText: 'Teacher+ Programını Aç →',
+      ticker: '14.00 – 15.00 PROF. DR. KÜRŞAT ÇAĞILTAY KONFERANSI · TEACHER+ ZONE (A BLOK)'
+    },
+    {
+      id: 'tedkolej-teacher',
+      badge: 'SAAT 16.00 – 17.00 · KONFERANS ÇAĞRISI',
+      speaker: 'TED Ankara Koleji İK Müdürü',
+      title: 'Teacher+ Zone’da sahnede (A Blok Konferans Salonu)',
+      targetZoneId: 'teacher-plus',
+      actionText: 'Teacher+ Programını Aç →',
+      ticker: '16.00 – 17.00 TED ANKARA KOLEJİ İK MÜDÜRÜ · TEACHER+ ZONE (A BLOK)'
     }
   ];
 
-  // Build flat lookup map of all scannable Location QR points (Zone gates + individual company desks/rooms)
+  // Build flat lookup map of all scannable Location QR points (Zone entrances + individual Stands/Sessions)
   const LOCATIONS = {};
   ZONES.forEach((zone) => {
     LOCATIONS[zone.id + '-zone'] = {
       locId: zone.id + '-zone',
       zoneId: zone.id,
-      companyId: null,
+      itemId: null,
       kind: 'zone',
       title: zone.name + ' Ana Giriş',
       subTitle: zone.building + ' · ' + zone.subtitle,
       capacity: zone.capacity
     };
-    zone.companies.forEach((comp) => {
-      LOCATIONS[comp.id] = {
-        locId: comp.id,
+    zone.items.forEach((item) => {
+      LOCATIONS[item.id] = {
+        locId: item.id,
         zoneId: zone.id,
-        companyId: comp.id,
-        kind: zone.id === 'one-to-one' ? 'cabin' : (zone.id === 'teacher-plus' ? 'table' : 'desk'),
-        title: comp.name,
-        subTitle: comp.desk + ' · ' + zone.name,
-        capacity: comp.capacity
+        itemId: item.id,
+        kind: zone.zoneType === 'stands' ? 'stand' : 'session',
+        title: (zone.zoneType === 'conference' ? `${item.timeSlot} · ` : '') + item.name,
+        subTitle: item.desk + ' · ' + zone.name,
+        capacity: item.capacity
       };
     });
   });
@@ -198,16 +213,16 @@
 
   function buildInitialState() {
     const zoneCounts = {};
-    const companyCounts = {};
+    const itemCounts = {};
     ZONES.forEach((z) => {
       zoneCounts[z.id] = z.defaultCount;
-      z.companies.forEach((c) => {
-        companyCounts[c.id] = c.defaultCount;
+      z.items.forEach((it) => {
+        itemCounts[it.id] = it.defaultCount;
       });
     });
     return {
       zoneCounts,
-      companyCounts,
+      itemCounts,
       activeRoutingId: 'aselsan-tech',
       customAlert: null,
       totalScans: 684,
@@ -217,7 +232,7 @@
 
   function loadState() {
     const raw = safeParse(localStorage.getItem(STORAGE_KEY), null);
-    if (!raw || !raw.zoneCounts || !raw.companyCounts) {
+    if (!raw || !raw.zoneCounts || !raw.itemCounts) {
       const init = buildInitialState();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(init));
       return init;
@@ -240,7 +255,6 @@
         history: []
       };
     }
-    // Enforce automatic safety TTL expiration
     if (p.currentLocId && p.checkedInAt && Date.now() - p.checkedInAt > SESSION_TTL_MS) {
       p.currentLocId = null;
       p.checkedInAt = null;
@@ -250,7 +264,7 @@
   }
 
   const channel = typeof BroadcastChannel !== 'undefined'
-    ? new BroadcastChannel('submitted_telemetry_v2')
+    ? new BroadcastChannel('submitted_telemetry_v3')
     : null;
 
   const listeners = new Set();
@@ -289,9 +303,9 @@
   });
 
   function getStatusMeta(pct) {
-    if (pct >= 85) return { code: 'critical', label: 'YOĞUN', color: '#D92D20' };
-    if (pct >= 62) return { code: 'busy', label: 'ORTA', color: '#D97706' };
-    return { code: 'open', label: 'MÜSAİT', color: '#00A847' };
+    if (pct >= 85) return { code: 'critical', label: 'YOĞUN', color: '#ef4444' };
+    if (pct >= 65) return { code: 'busy', label: 'KALABALIK', color: '#f5a623' };
+    return { code: 'open', label: 'MÜSAİT', color: '#27c96b' };
   }
 
   function getCampusBalance(zonesSnapshot) {
@@ -305,7 +319,7 @@
         isBalanced: false,
         heavyZone: red,
         lighterZone: blue,
-        message: `Red Zone (Fuaye Alanı) %${red.pct} dolulukla yoğun · Aksu tarafındaki Blue Zone (Spor Merkezi) %${blue.pct} ile müsait (~2 dk yürüme).`
+        message: `Red Zone (Fuaye) %${red.pct} dolu · Spor Merkezi Blue Zone %${blue.pct} ile müsait (~2 dk yürüme).`
       };
     }
     if (diff <= -18) {
@@ -313,14 +327,14 @@
         isBalanced: false,
         heavyZone: blue,
         lighterZone: red,
-        message: `Blue Zone (Spor Merkezi) %${blue.pct} dolulukla yoğun · İncesu tarafındaki Red Zone (Fuaye Alanı) %${red.pct} ile daha sakin (~2 dk yürüme).`
+        message: `Blue Zone (Spor Merkezi) %${blue.pct} dolu · Fuaye Red Zone %${red.pct} ile müsait (~2 dk yürüme).`
       };
     }
     return {
       isBalanced: true,
       heavyZone: null,
       lighterZone: blue.pct <= red.pct ? blue : red,
-      message: `İncesu (Red Zone %${red.pct}) ve Aksu (Blue Zone %${blue.pct}) arasındaki yoğunluk dengeli seyrediyor.`
+      message: `Stant yoğunluğu dengeli: Red Zone (Fuaye) %${red.pct} · Blue Zone (Spor Mrk.) %${blue.pct}`
     };
   }
 
@@ -335,13 +349,13 @@
       totalInside += count;
       totalCapacity += z.capacity;
 
-      const companies = z.companies.map((c) => {
-        const cCount = Math.max(0, Number(state.companyCounts[c.id] ?? c.defaultCount));
-        const cPct = Math.min(100, Math.round((cCount / c.capacity) * 100));
-        return Object.assign({}, c, {
-          count: cCount,
-          pct: cPct,
-          status: getStatusMeta(cPct)
+      const items = z.items.map((it) => {
+        const itCount = Math.max(0, Number(state.itemCounts[it.id] ?? it.defaultCount));
+        const itPct = Math.min(100, Math.round((itCount / it.capacity) * 100));
+        return Object.assign({}, it, {
+          count: itCount,
+          pct: itPct,
+          status: getStatusMeta(itPct)
         });
       });
 
@@ -349,7 +363,8 @@
         count,
         pct,
         status: getStatusMeta(pct),
-        companies
+        items,
+        companies: items // Backwards compatibility alias for map UI
       });
     });
 
@@ -390,8 +405,8 @@
   function decrementLocation(state, locId) {
     const loc = LOCATIONS[locId];
     if (!loc) return;
-    if (loc.companyId && state.companyCounts[loc.companyId] > 0) {
-      state.companyCounts[loc.companyId] -= 1;
+    if (loc.itemId && state.itemCounts[loc.itemId] > 0) {
+      state.itemCounts[loc.itemId] -= 1;
     }
     if (state.zoneCounts[loc.zoneId] > 0) {
       state.zoneCounts[loc.zoneId] -= 1;
@@ -406,16 +421,15 @@
     const passport = loadPassport();
     const previousLocId = passport.currentLocId;
 
-    // Cross-scan auto-checkout from previous active room/desk/zone
     if (previousLocId && previousLocId !== locId) {
       decrementLocation(state, previousLocId);
     }
 
     if (previousLocId !== locId) {
-      if (loc.companyId) {
-        const compDef = ZONES.flatMap((z) => z.companies).find((c) => c.id === loc.companyId);
-        const cap = compDef ? compDef.capacity : 50;
-        state.companyCounts[loc.companyId] = Math.min(cap + 5, (state.companyCounts[loc.companyId] || 0) + 1);
+      if (loc.itemId) {
+        const itemDef = ZONES.flatMap((z) => z.items).find((it) => it.id === loc.itemId);
+        const cap = itemDef ? itemDef.capacity : 80;
+        state.itemCounts[loc.itemId] = Math.min(cap + 5, (state.itemCounts[loc.itemId] || 0) + 1);
       }
       const zoneDef = ZONES.find((z) => z.id === loc.zoneId);
       const zCap = zoneDef ? zoneDef.capacity : 300;
@@ -482,34 +496,24 @@
     } else if (presetIdOrCustom && presetIdOrCustom.targetZoneId) {
       state.customAlert = Object.assign({
         id: 'custom-' + Date.now(),
-        badge: 'CANLI ANONS · ŞİMDİ'
+        badge: 'CANLI ANONS'
       }, presetIdOrCustom);
     }
     saveState(state, true);
   }
 
   function nudgeTelemetryTick() {
-    // Gentle organic movement simulation across stands when live pulse is enabled
     const state = loadState();
     const zoneIndex = Math.floor(Math.random() * ZONES.length);
     const z = ZONES[zoneIndex];
     const delta = Math.random() > 0.45 ? 1 : -1;
-    const nextZ = Math.max(Math.round(z.capacity * 0.2), Math.min(Math.round(z.capacity * 0.96), (state.zoneCounts[z.id] || z.defaultCount) + delta));
-    state.zoneCounts[z.id] = nextZ;
+    state.zoneCounts[z.id] = Math.max(Math.round(z.capacity * 0.2), Math.min(Math.round(z.capacity * 0.96), (state.zoneCounts[z.id] || z.defaultCount) + delta));
 
-    const comp = z.companies[Math.floor(Math.random() * z.companies.length)];
-    if (comp) {
-      state.companyCounts[comp.id] = Math.max(3, Math.min(comp.capacity, (state.companyCounts[comp.id] || comp.defaultCount) + delta));
+    const item = z.items[Math.floor(Math.random() * z.items.length)];
+    if (item) {
+      state.itemCounts[item.id] = Math.max(5, Math.min(item.capacity, (state.itemCounts[item.id] || item.defaultCount) + delta));
     }
     saveState(state, true);
-  }
-
-  function resetDemoState() {
-    const fresh = buildInitialState();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
-    localStorage.removeItem(PASSPORT_KEY);
-    if (channel) channel.postMessage({ type: 'telemetry-update', state: fresh });
-    notifyAll(fresh);
   }
 
   function subscribe(callback) {
@@ -529,7 +533,6 @@
     checkOutCurrent,
     setRoutingAlert,
     nudgeTelemetryTick,
-    resetDemoState,
     getStatusMeta
   };
 })(window);

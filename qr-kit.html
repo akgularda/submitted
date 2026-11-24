@@ -92,7 +92,7 @@
   </footer>
 
   <script src="vendor/qrcode.min.js"></script>
-  <script src="telemetry.js?v=20261124a"></script>
+  <script src="telemetry.js?v=20261124v4"></script>
   <script>
     (function () {
       const api = window.SubmitTEDTelemetry;
@@ -129,12 +129,13 @@
         gridEl.innerHTML = list.map((loc) => {
           const z = api.ZONES.find((item) => item.id === loc.zoneId);
           const targetUrl = `${baseDir}checkin.html?loc=${encodeURIComponent(loc.locId)}`;
+          const kindLabel = loc.kind === 'zone' ? 'BÖLGE GİRİŞİ' : (loc.kind === 'stand' ? 'ŞİRKET STANT QR' : 'KONFERANS / OTURUM QR');
           return (
             `<article class="qr-poster-card" style="--zone-color:${z.color}">` +
               `<div>` +
                 `<div class="poster-head">` +
                   `<div>` +
-                    `<span class="poster-zone-tag">${z.name} · ${loc.kind === 'zone' ? 'BÖLGE GİRİŞİ' : 'MASA / ODA QR'}</span>` +
+                    `<span class="poster-zone-tag">${z.name} · ${kindLabel}</span>` +
                     `<h3 class="poster-card-title">${loc.title}</h3>` +
                     `<div class="poster-sub">${loc.subTitle}</div>` +
                   `</div>` +

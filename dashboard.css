@@ -435,12 +435,14 @@ body.fids-body {
 .fids-call-main {
   flex: 1;
   min-width: 0;
+  max-width: 100%;
   border: none;
   background: transparent;
   padding: 0;
   display: flex;
   align-items: center;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 8px 14px;
   text-align: left;
   cursor: pointer;
 }
@@ -449,15 +451,18 @@ body.fids-body {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.9px;
   padding: 4px 10px;
   background-color: var(--fids-amber);
   color: #050708;
-  white-space: nowrap;
+  max-width: 100%;
   animation: airportGateBadge 2.4s ease-in-out infinite;
 }
 
 .fids-flash-text {
+  flex: 1 1 260px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: var(--font-mono);
   font-size: 13.5px;
   font-weight: 500;
@@ -538,7 +543,20 @@ body.fids-body {
   .fids-zone-name {
     font-size: 16.5px;
   }
+  .fids-call-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .fids-call-main {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
   .fids-flash-text {
+    flex: none;
+    width: 100%;
     font-size: 12px;
   }
 }

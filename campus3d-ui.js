@@ -40,46 +40,46 @@ const FALLBACK_ZONES = {
   tech: {
     id: 'tech',
     name: 'Tech&Innovation Zone',
-    subtitle: 'Teknoloji, AI & Konuşma Amfisi',
+    subtitle: 'Konferans & Söyleşi Salonu',
     building: 'D Blok · Amfi D-104',
     color: '#00A847',
     capacity: 120,
-    count: 88,
-    pct: 73,
-    description: 'Yapay zeka, savunma sistemleri ve ürün panellerinin gerçekleştiği teknik konuşma bölgesi.',
+    count: 92,
+    pct: 77,
+    description: 'Şirket stantlarının yer almadığı; 12.00 ASELSAN, 13.30 MİLSOFT ve teknoloji söyleşilerinin yapıldığı konferans alanı.',
     companies: [
-      { name: 'ASELSAN · Teknoloji Konuşması', pct: 82 },
-      { name: 'EY Türkiye · YZ Lab', pct: 70 }
+      { name: '12.00–13.30 ASELSAN Söyleşisi', pct: 85 },
+      { name: '13.30–14.15 MİLSOFT Konferansı', pct: 73 }
     ]
   },
   'one-to-one': {
     id: 'one-to-one',
     name: 'One-to-One Meetings Zone',
-    subtitle: 'Randevulu Mülakat & CV Kabinleri',
-    building: 'G Blok · Kabin 01–12',
+    subtitle: 'Randevulu Mülakat & Görüşme Salonu',
+    building: 'G Blok · Görüşme Odaları',
     color: '#1D4F7C',
     capacity: 48,
-    count: 39,
-    pct: 81,
-    description: 'Masa/kabin QR kodu ile giriş yapılan 15 dakikalık birebir İK görüşmeleri ve CV kliniği alanı.',
+    count: 38,
+    pct: 79,
+    description: 'Konum QR koduyla giriş yapılan randevulu 1:1 İK mülakat ve CV değerlendirme seansları.',
     companies: [
-      { name: 'ASELSAN Kabinleri', pct: 92 },
-      { name: 'TUSAŞ & FNSS Kabinleri', pct: 83 }
+      { name: '10.00–12.30 Mühendislik Seansı', pct: 85 },
+      { name: '13.30–15.30 Finans & MT Seansı', pct: 81 }
     ]
   },
   'teacher-plus': {
     id: 'teacher-plus',
     name: 'Teacher+ Zone',
-    subtitle: 'Akademisyen–Sektör & Yuvarlak Masa',
+    subtitle: 'Eğitim & Akademik Konferans Salonu',
     building: 'A / B Blok · İncesu',
     color: '#6E56CF',
-    capacity: 50,
-    count: 24,
-    pct: 48,
-    description: 'Öğretim üyeleri ve sektör direktörleriyle vaka analizi ve yuvarlak masa buluşma odaları.',
+    capacity: 80,
+    count: 54,
+    pct: 68,
+    description: '14.00 Prof. Dr. Kürşat Çağıltay Konferansı ve 16.00 TED Ankara Koleji İK Müdürü söyleşisinin gerçekleştiği konferans alanı.',
     companies: [
-      { name: 'Yuvarlak Masa A · Akfen', pct: 63 },
-      { name: 'Yuvarlak Masa B · CCI', pct: 50 }
+      { name: '14.00–15.00 Prof. Dr. Kürşat Çağıltay', pct: 85 },
+      { name: '16.00–17.00 TED Ankara Koleji İK', pct: 64 }
     ]
   },
   'food-beverage': {

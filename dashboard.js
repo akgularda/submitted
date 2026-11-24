@@ -1,6 +1,7 @@
 // SubmitTED 2026 — Dark Airport FIDS (Flight Information Display System) Controller
-// Zero QR codes. Displays clean 6-Zone Airport Departure Board OR per-Zone Company Booth Board,
-// paired with a soft-flashing bottom announcement bar.
+// Zero QR codes.
+// Red Zone & Blue Zone -> Company Stands board;
+// Tech&Innovation, Teacher+, One-to-One, Food&Beverage -> Scheduled Conference / Session board.
 
 (function () {
   'use strict';
@@ -66,21 +67,22 @@
 
   function renderGlobalZonesBoard(snap) {
     boardTitleEl.textContent = 'KAMPÜS DOLULUK PANOSU';
-    headEl.innerHTML = '<span>ZONE / BÖLGE</span><span>YERLEŞKE / BLOK</span><span>KİŞİ</span><span>DOLULUK ORANI</span><span style="text-align:right">DURUM</span>';
+    headEl.innerHTML = '<span>ZONE / ALAN</span><span>YERLEŞKE / TÜR</span><span>KİŞİ</span><span>DOLULUK ORANI</span><span style="text-align:right">DURUM</span>';
 
     rowsEl.innerHTML = snap.zones.map((z) => {
       const st = getFidsStatusColor(z.pct);
       const isTarget = snap.routing && snap.routing.targetZoneId === z.id;
+      const modeLabel = z.zoneType === 'stands' ? 'Şirket Stant Alanı' : 'Konferans / Oturum Alanı';
       return (
         `<div class="fids-row ${isTarget ? 'is-highlighted' : ''}" role="listitem" tabindex="0" data-open-zone="${z.id}" style="--zc:${z.color};--sc:${st.color}">` +
           `<div class="fids-col-zone">` +
             `<span class="fids-zone-bar" aria-hidden="true"></span>` +
             `<div>` +
               `<div class="fids-zone-name">${z.name}</div>` +
-              `<div class="fids-zone-sub">${z.subtitle}</div>` +
+              `<div class="fids-zone-sub">${z.building}</div>` +
             `</div>` +
           `</div>` +
-          `<div class="fids-col-loc">${z.building}</div>` +
+          `<div class="fids-col-loc">${modeLabel}</div>` +
           `<div class="fids-col-count">${z.count} / ${z.capacity}</div>` +
           `<div class="fids-col-pct">` +
             `<span class="fids-pct-num">%${z.pct}</span>` +
@@ -105,29 +107,37 @@
       });
     });
 
-    hintEl.innerHTML = '<span>Şirket ve masa bazlı ekranı açmak için satıra dokunun.</span><span>Otomatik yenileme aktif</span>';
+    hintEl.innerHTML = '<span>Red &amp; Blue Zone stant yoğunluklarını, diğer Zone’larda konferans programını görmek için satıra tıklayın.</span><span>Canlı yenileme aktif</span>';
   }
 
-  function renderZoneCompanyBoard(snap, zone) {
-    boardTitleEl.textContent = `${zone.name.toUpperCase()} · KURUM DOLULUK EKRANI`;
-    headEl.innerHTML = '<span>KURUM / NOKTA</span><span>STANT / KONUM</span><span>KİŞİ</span><span>DOLULUK ORANI</span><span style="text-align:right">DURUM</span>';
+  function renderZoneDetailBoard(snap, zone) {
+    const isStands = zone.zoneType === 'stands';
+    boardTitleEl.textContent = isStands
+      ? `${zone.name.toUpperCase()} · ŞİRKET STANT DOLULUĞU`
+      : `${zone.name.toUpperCase()} · KONFERANS VE OTURUM PROGRAMI`;
 
-    rowsEl.innerHTML = zone.companies.map((c) => {
-      const st = getFidsStatusColor(c.pct);
+    headEl.innerHTML = isStands
+      ? '<span>STANT / KURUM</span><span>SEKTÖR &amp; KONUM</span><span>KİŞİ</span><span>DOLULUK ORANI</span><span style="text-align:right">DURUM</span>'
+      : '<span>SAAT &amp; KONFERANS</span><span>SALON &amp; BAŞLIK</span><span>SALON KİŞİ</span><span>DOLULUK ORANI</span><span style="text-align:right">DURUM</span>';
+
+    rowsEl.innerHTML = zone.items.map((it) => {
+      const st = getFidsStatusColor(it.pct);
+      const leftMain = isStands ? it.name : `${it.timeSlot} · ${it.name}`;
+      const leftSub = isStands ? `${it.timeSlot} · ${it.role}` : it.role;
       return (
         `<div class="fids-row" role="listitem" style="--zc:${zone.color};--sc:${st.color}">` +
           `<div class="fids-col-zone">` +
             `<span class="fids-zone-bar" aria-hidden="true"></span>` +
             `<div>` +
-              `<div class="fids-zone-name">${c.name}</div>` +
-              `<div class="fids-zone-sub">${c.role}</div>` +
+              `<div class="fids-zone-name">${leftMain}</div>` +
+              `<div class="fids-zone-sub">${leftSub}</div>` +
             `</div>` +
           `</div>` +
-          `<div class="fids-col-loc">${c.desk}</div>` +
-          `<div class="fids-col-count">${c.count} / ${c.capacity}</div>` +
+          `<div class="fids-col-loc">${it.desk}</div>` +
+          `<div class="fids-col-count">${it.count} / ${it.capacity}</div>` +
           `<div class="fids-col-pct">` +
-            `<span class="fids-pct-num">%${c.pct}</span>` +
-            `<div class="fids-led-track"><div class="fids-led-fill" style="width:${c.pct}%"></div></div>` +
+            `<span class="fids-pct-num">%${it.pct}</span>` +
+            `<div class="fids-led-track"><div class="fids-led-fill" style="width:${it.pct}%"></div></div>` +
           `</div>` +
           `<div class="fids-col-status"><span class="fids-status-tag">${st.label}</span></div>` +
         `</div>`
@@ -135,7 +145,7 @@
     }).join('');
 
     hintEl.innerHTML =
-      `<span>${zone.name} Toplam Doluluk: %${zone.pct} (${zone.count} / ${zone.capacity} Kişi) · ${zone.walkingHint}</span>` +
+      `<span>${zone.name} (${zone.building}) · %${zone.pct} (${zone.count} / ${zone.capacity} Kişi) · ${zone.walkingHint}</span>` +
       `<button type="button" class="fids-back-btn" id="fids-return-all">← Tüm Zone’lara Dön</button>`;
 
     document.getElementById('fids-return-all')?.addEventListener('click', () => {
@@ -151,11 +161,9 @@
     }
 
     if (snap.routing) {
-      const tz = snap.zonesById[snap.routing.targetZoneId];
-      if (routingBadgeEl) routingBadgeEl.textContent = snap.routing.badge.split('·')[0].trim();
+      if (routingBadgeEl) routingBadgeEl.textContent = snap.routing.badge;
       if (routingCopyEl) {
-        routingCopyEl.textContent =
-          `${snap.routing.speaker.split('·')[0].trim()} · ${snap.routing.title.toUpperCase()} — HEDEF: ${tz ? tz.name.toUpperCase() + ' (' + tz.building.toUpperCase() + ')' : ''}`;
+        routingCopyEl.textContent = snap.routing.ticker || `${snap.routing.speaker} — ${snap.routing.title}`;
       }
       if (routingFocusBtn) {
         routingFocusBtn.onclick = () => {
@@ -170,7 +178,7 @@
       renderGlobalZonesBoard(snap);
     } else {
       const zone = snap.zonesById[activeZoneFilter] || snap.zones[0];
-      renderZoneCompanyBoard(snap, zone);
+      renderZoneDetailBoard(snap, zone);
     }
   }
 
@@ -188,7 +196,7 @@
   const presetRow = document.getElementById('dispatch-preset-buttons');
   if (presetRow) {
     presetRow.innerHTML = api.ROUTING_PRESETS.map((p) => (
-      `<button type="button" class="fids-tool-btn" data-preset="${p.id}">${p.speaker.split('·')[0].trim()} → ${api.ZONES.find((z) => z.id === p.targetZoneId)?.shortName}</button>`
+      `<button type="button" class="fids-tool-btn" data-preset="${p.id}">${p.speaker} → ${api.ZONES.find((z) => z.id === p.targetZoneId)?.shortName}</button>`
     )).join('');
     presetRow.querySelectorAll('[data-preset]').forEach((btn) => {
       btn.addEventListener('click', () => api.setRoutingAlert(btn.dataset.preset));
@@ -207,7 +215,13 @@
       const speaker = document.getElementById('custom-speaker').value.trim();
       const title = document.getElementById('custom-title').value.trim();
       const targetZoneId = document.getElementById('custom-target-zone').value;
-      api.setRoutingAlert({ speaker, title, targetZoneId });
+      const tz = api.ZONES.find((z) => z.id === targetZoneId);
+      api.setRoutingAlert({
+        speaker,
+        title,
+        targetZoneId,
+        ticker: `${speaker.toUpperCase()} · ${title.toUpperCase()} — ${tz ? tz.name.toUpperCase() + ' (' + tz.building.toUpperCase() + ')' : ''}`
+      });
       dispatchForm.reset();
     });
   }

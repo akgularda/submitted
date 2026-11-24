@@ -149,7 +149,7 @@
     </section>
   </main>
 
-  <script src="telemetry.js?v=20261124a"></script>
+  <script src="telemetry.js?v=20261124v4"></script>
   <script>
     (function () {
       const api = window.SubmitTEDTelemetry;
@@ -184,9 +184,9 @@
         locTitleEl.textContent = loc.title;
         locSubEl.textContent = loc.subTitle;
 
-        if (loc.companyId) {
-          const comp = zone.companies.find((c) => c.id === loc.companyId);
-          locOccTextEl.textContent = comp ? `${comp.count} / ${comp.capacity} Kişi (%${comp.pct})` : `${zone.count} / ${zone.capacity}`;
+        if (loc.itemId) {
+          const item = zone.items.find((c) => c.id === loc.itemId);
+          locOccTextEl.textContent = item ? `${item.count} / ${item.capacity} Kişi (%${item.pct})` : `${zone.count} / ${zone.capacity}`;
         } else {
           locOccTextEl.textContent = `${zone.count} / ${zone.capacity} Kişi (%${zone.pct})`;
         }
@@ -218,8 +218,9 @@
 
         // Quick test buttons
         const sampleLocs = [
-          'red-zone', 'blue-zone', 'tech-zone', '1on1-aselsan', 'roundtable-a', 'food-aksu',
-          'stand-aselsan', 'stand-akfen', 'stand-ey', 'tech-aselsan-stage'
+          'red-zone', 'blue-zone', 'tech-aselsan-1200', 'tech-milsoft-1330',
+          'teacher-cagiltay-1400', 'teacher-tedkolej-1600', '1on1-morning', 'food-coffee-allday',
+          'stand-aselsan', 'stand-akfen'
         ];
         locQuickGridEl.innerHTML = sampleLocs.map((id) => {
           const item = api.LOCATIONS[id];

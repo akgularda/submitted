@@ -259,7 +259,7 @@ function initSummitCampus(renderer) {
     c.font = '600 21px Arial';
     const snap = window.SubmitTEDTelemetry ? window.SubmitTEDTelemetry.getSnapshot() : null;
     const totalCount = snap ? snap.totalInside : Math.round(610 + Math.sin(time * 0.8) * 3);
-    const routeLine = snap && snap.routing ? `${snap.routing.speaker.split('·')[0].trim()} → ${snap.zonesById[snap.routing.targetZoneId]?.shortName || ''}` : '6 ZONE · CANLI TELEMETRİ';
+    const routeLine = snap && snap.routing ? `${snap.routing.speaker} → ${snap.zonesById[snap.routing.targetZoneId]?.shortName || ''}` : '6 ZONE · CANLI TELEMETRİ';
     c.fillText(`${routeLine} · TOPLAM KAMPÜS: ${totalCount} KİŞİ`, w / 2, 375);
     screen.texture.needsUpdate = true;
   }
@@ -388,7 +388,7 @@ function initSummitCampus(renderer) {
   booth(-10, -17.4, '#D92D20', 'EY · COCA-COLA', 'red');
   booth(-4, -17.4, '#D92D20', 'KPMG · ANADOLU EFES', 'red');
 
-  booth(14, 13.2, '#D97706', 'KAHVE & NETWORKİNG', 'food-beverage');
+  table(14, 13.2, groups['food-beverage']);
   table(7, 13.2, groups['food-beverage']);
   table(1.5, 13.2, groups['food-beverage']);
 
@@ -460,15 +460,13 @@ function initSummitCampus(renderer) {
 
   for (let i = 0; i < 4; i++) box(15, 0.2 * (i + 1), 0.8, -72, 0.2 + i * 0.1, 7 + i * 0.8, stone);
 
-  // Aksu Zones: G Blok One-to-One, D Blok Tech&Innovation, E Blok Blue Zone, Courtyard Food&Beverage
-  booth(-76, -12, '#1D4F7C', '1:1 KABİNLER', 'one-to-one');
-  booth(-69, -12, '#1D4F7C', 'CV KLİNİĞİ', 'one-to-one');
-  booth(-76, -3, '#D97706', 'FOOD & BEVERAGE', 'food-beverage');
+  // Aksu Zones: G Blok Meetings Hall, D Blok Tech Conference Hall, E Blok Blue Zone Stands, Courtyard Food&Beverage Tables
+  sign('G BLOK · 1:1 MÜLAKAT SALONU', -72, 4.5, -13, 8.5, 1.4, groups['one-to-one'], '#1D4F7C', '#ffffff');
+  table(-76, -3, groups['food-beverage']);
   table(-69, -3, groups['food-beverage']);
-  booth(-76, 6, '#00A847', 'ASELSAN · TECH SAHNE', 'tech');
-  booth(-69, 6, '#00A847', 'YZ & ÜRÜN DEMO', 'tech');
-  booth(-55, 17, '#1570EF', 'BLUE ZONE · ASELSAN / TUSAŞ', 'blue');
-  booth(-16, 15, '#6E56CF', 'TEACHER+ · YUVARLAK MASA', 'teacher-plus');
+  sign('D BLOK · TECH & INNOVATION KONFERANS', -74, 4.8, 6, 10.5, 1.5, groups.tech, '#00A847', '#ffffff');
+  booth(-55, 17, '#1570EF', 'BLUE ZONE · ASELSAN / TUSAŞ / MİLSOFT', 'blue');
+  sign('A BLOK · TEACHER+ KONFERANS SALONU', -18, 5.2, 14, 10.5, 1.5, groups['teacher-plus'], '#6E56CF', '#ffffff');
 
   for (const [x, z] of [[-88, -22], [-88, 22], [-59, -13], [-80, 13]]) tree(x, z, 0.8);
 
