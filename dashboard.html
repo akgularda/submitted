@@ -3,130 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canlı Doluluk Dashboard | SubmitTED 2026</title>
-  <meta name="description" content="SubmitTED Kariyer Zirvesi 2026 canlı kampüs Zone dolulukları, şirket stant yoğunlukları ve oturum yönlendirme ekranı.">
+  <title>Kampüs Ekranı | SubmitTED 2026</title>
+  <meta name="description" content="SubmitTED Kariyer Zirvesi 2026 havalimanı bilgi ekranı tarzında karanlık canlı Zone ve şirket doluluk panosu.">
   <link rel="icon" type="image/svg+xml" href="assets/submitted-mark.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="dashboard.css?v=20261124b">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css?v=20261124fids">
 </head>
-<body class="dash-body">
+<body class="fids-body">
 
-  <!-- Executive Header (Zero QR codes on Dashboard) -->
-  <header class="dash-topbar">
-    <div class="dash-container dash-topbar-inner">
-      <div class="dash-brand-group">
-        <a href="index.html" class="dash-brand-link" aria-label="Ana Sayfaya Dön">
-          <img src="assets/submitted-logo-white.svg" alt="SubmitTED Logo" class="dash-logo">
+  <!-- Minimalist Dark Airport Header -->
+  <header class="fids-header">
+    <div class="fids-wrap fids-header-inner">
+      <div class="fids-brand">
+        <a href="index.html" class="fids-logo-link" aria-label="SubmitTED Ana Sayfa">
+          <img src="assets/submitted-logo-white.svg" alt="SubmitTED" class="fids-logo">
         </a>
-        <div class="dash-env-tag">
-          <span class="pulse-dot" aria-hidden="true"></span>
-          <span>CANLI KAMPÜS TELEMETRİ</span>
-        </div>
+        <span class="fids-sep" aria-hidden="true">/</span>
+        <span class="fids-board-name" id="fids-board-title">KAMPÜS DOLULUK PANOSU</span>
       </div>
 
-      <div class="dash-header-right">
-        <div class="dash-kpi-pill">
-          <small>TOPLAM KATILIMCI</small>
+      <div class="fids-header-meta">
+        <div class="fids-stat">
+          <span>İÇERİDE</span>
           <strong id="dash-total-inside">615 / 953</strong>
         </div>
-        <div class="dash-kpi-pill">
-          <small>SAAT</small>
-          <strong id="dash-clock">--:--:--</strong>
+        <div class="fids-clock" id="dash-clock">--:--:--</div>
+        <div class="fids-tools" id="dash-controls-bar">
+          <button type="button" class="fids-tool-btn" id="dash-dispatch-toggle" aria-expanded="false">Anons</button>
+          <button type="button" class="fids-tool-btn" id="dash-fullscreen-btn">Tam Ekran</button>
+          <a href="index.html" class="fids-tool-btn">Site</a>
         </div>
-        <div class="dash-actions" id="dash-controls-bar">
-          <button type="button" class="dash-btn" id="dash-sim-toggle" aria-pressed="true">Canlı Akış: Açık</button>
-          <button type="button" class="dash-btn" id="dash-dispatch-toggle" aria-expanded="false">Yönlendirme Anonsu</button>
-          <button type="button" class="dash-btn" id="dash-fullscreen-btn">Tam Ekran</button>
-          <a href="index.html" class="dash-btn dash-btn-accent">Ana Site →</a>
-        </div>
+      </div>
+    </div>
+
+    <!-- Subtle Screen Switcher Strip -->
+    <div class="fids-subnav">
+      <div class="fids-wrap fids-subnav-inner">
+        <div class="fids-tabs" id="dash-zone-tabs" role="tablist" aria-label="Ekran Modu"></div>
+        <span class="fids-balance-note" id="dash-balance-text"></span>
       </div>
     </div>
   </header>
 
-  <!-- Live Session Routing Banner (e.g., ASELSAN -> Tech&Innovation Zone) -->
-  <section class="dash-routing-strip" aria-live="polite">
-    <div class="dash-container dash-routing-inner">
-      <div class="routing-left">
-        <span class="routing-badge" id="routing-badge">CANLI YÖNLENDİRME · 10 DK İÇİNDE</span>
-        <div class="routing-copy">
-          <strong id="routing-title">ASELSAN Konuşması · Tech&amp;Innovation Zone (D Blok · Aksu)</strong>
-          <span id="routing-speaker">ASELSAN · Genel Müdür Yardımcısı Ahmet Kaya — Savunma ve Yüksek Teknolojide Yetenek Ekosistemi</span>
-        </div>
-      </div>
-      <div class="routing-right">
-        <button type="button" class="routing-action-btn" id="routing-focus-btn">Tech&amp;Innovation Ekranına Geç →</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Organizer Routing Dispatch Console (Collapsible, hidden in pure ?kiosk=1 mode) -->
-  <section class="dash-dispatch-panel" id="dash-dispatch-panel" hidden>
-    <div class="dash-container dispatch-inner">
-      <div class="dispatch-presets">
-        <span class="dispatch-label">HIZLI YÖNLENDİRME SENARYOLARI:</span>
-        <div id="dispatch-preset-buttons" class="preset-row"></div>
-      </div>
-      <form id="custom-dispatch-form" class="dispatch-form">
-        <input type="text" id="custom-speaker" placeholder="Kurum / Konuşmacı (ör. ASELSAN)" required>
-        <input type="text" id="custom-title" placeholder="Oturum / Çağrı Mesajı (ör. Konuşma 10 dk içinde başlıyor)" required>
+  <!-- Collapsible Organizer Dispatch Bar (Hidden by default) -->
+  <section class="fids-dispatch" id="dash-dispatch-panel" hidden>
+    <div class="fids-wrap fids-dispatch-inner">
+      <div class="fids-preset-row" id="dispatch-preset-buttons"></div>
+      <form id="custom-dispatch-form" class="fids-dispatch-form">
+        <input type="text" id="custom-speaker" placeholder="Kurum (ör. ASELSAN)" required>
+        <input type="text" id="custom-title" placeholder="Çağrı metni (ör. Konuşma 10 dk içinde başlıyor)" required>
         <select id="custom-target-zone" aria-label="Hedef Zone"></select>
-        <button type="submit" class="dash-btn dash-btn-accent">Ekranlara Yayınla</button>
+        <button type="submit" class="fids-tool-btn fids-tool-accent">Yayınla</button>
       </form>
     </div>
   </section>
 
-  <!-- Main Dashboard Stage -->
-  <main class="dash-main">
-    <div class="dash-container">
-
-      <!-- View Switcher: All 6 Zones OR Dedicated Zone Company Screen -->
-      <div class="dash-toolbar">
-        <div class="zone-tabs" id="dash-zone-tabs" role="tablist" aria-label="Kampüs Zone Ekranları"></div>
-        <div class="balance-banner" id="dash-balance-banner">
-          <span class="balance-tag">İNCESU ↔ AKSU DENGESİ</span>
-          <p id="dash-balance-text">Hesaplanıyor...</p>
+  <!-- Clean Airport Departure-Board Table (Zero QR Codes) -->
+  <main class="fids-main">
+    <div class="fids-wrap fids-board-container">
+      <div class="fids-board-frame">
+        <div class="fids-board-head" id="fids-table-head">
+          <span>BÖLGE / ALAN</span>
+          <span>KONUM</span>
+          <span>DOLULUK</span>
+          <span>ORAN</span>
+          <span>DURUM</span>
         </div>
+
+        <div class="fids-rows" id="fids-rows" role="list"></div>
       </div>
 
-      <!-- Global 6-Zone Occupancy Overview -->
-      <section id="dash-global-section" aria-label="6 Zone Canlı Doluluk Oranları">
-        <div class="zones-telemetry-grid" id="zones-telemetry-grid"></div>
-      </section>
-
-      <!-- Focused Zone Company / Desk Occupancy Breakdown -->
-      <section class="zone-companies-section" aria-labelledby="companies-section-title">
-        <div class="section-bar">
-          <div>
-            <span class="section-kicker" id="companies-zone-kicker">BÖLGE EKRANI · ŞİRKET VE MASA DOLULUKLARI</span>
-            <h2 id="companies-section-title">Seçili Zone İçindeki Kurum &amp; Nokta Dolulukları</h2>
-          </div>
-          <div class="zone-meta-chip" id="zone-summary-chip"></div>
-        </div>
-
-        <div class="companies-grid" id="companies-grid"></div>
-      </section>
-
+      <div class="fids-board-hint" id="fids-board-hint">
+        Şirket ve masa yoğunluklarını görmek için listeden bir Zone satırına tıklayabilirsiniz.
+      </div>
     </div>
   </main>
 
-  <!-- RadioTEDU Live Ticker Footer -->
-  <footer class="dash-ticker-bar">
-    <div class="dash-container ticker-inner">
-      <span class="ticker-brand">RADİOTEDU · ZİRVE AKIŞI</span>
-      <p class="ticker-text" id="dash-ticker-text">
-        RadioTEDU Zirve Akışı · Tüm alanlarda konum QR kodlarıyla temassız check-in aktiftir.
-      </p>
-      <a href="https://radiotedu.com/technology" target="_blank" rel="noopener noreferrer" class="ticker-credit">
-        <span>Made with love by</span>
-        <img src="assets/radiotedu-white.png" alt="RadioTEDU" height="16">
-        <span>Technologies</span>
+  <!-- Subtle Bottom Airport Gate Call / Soft-Flashing Announcement Bar -->
+  <footer class="fids-bottom-call" id="fids-bottom-call" aria-live="polite">
+    <div class="fids-wrap fids-call-inner">
+      <button type="button" class="fids-call-main" id="routing-focus-btn">
+        <span class="fids-flash-indicator" id="routing-badge">ANONS</span>
+        <span class="fids-flash-text" id="routing-copy">
+          ASELSAN KONUŞMASI 10 DK İÇİNDE TECH&amp;INNOVATION ZONE (D BLOK)’DA BAŞLIYOR
+        </span>
+      </button>
+      <a href="https://radiotedu.com/technology" target="_blank" rel="noopener noreferrer" class="fids-credit">
+        <span>Made with love by RadioTEDU Technologies</span>
       </a>
     </div>
   </footer>
 
   <script src="telemetry.js?v=20261124a"></script>
-  <script src="dashboard.js?v=20261124a"></script>
+  <script src="dashboard.js?v=20261124fids"></script>
 </body>
 </html>

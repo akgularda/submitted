@@ -1,6 +1,6 @@
-// SubmitTED 2026 — Multi-Screen Live Occupancy Dashboard Controller
-// Displays Zone occupancy rates + per-Zone Company Booth/Desk occupancy rates + Live Session Routing.
-// Intentionally renders ZERO QR codes on Dashboard displays.
+// SubmitTED 2026 — Dark Airport FIDS (Flight Information Display System) Controller
+// Zero QR codes. Displays clean 6-Zone Airport Departure Board OR per-Zone Company Booth Board,
+// paired with a soft-flashing bottom announcement bar.
 
 (function () {
   'use strict';
@@ -12,185 +12,169 @@
   const initialZone = params.get('zone');
   const isKioskMode = params.get('kiosk') === '1';
 
-  // "all" highlights all 6 zones AND displays focused zone company telemetry;
-  // passing ?zone=red locks a Zone screen to Red Zone's companies prominently.
-  let selectedZoneId = initialZone && api.ZONES.some((z) => z.id === initialZone) ? initialZone : 'all';
-  let companyDetailZoneId = selectedZoneId === 'all' ? 'red' : selectedZoneId;
-  let simActive = true;
+  let activeZoneFilter = initialZone && api.ZONES.some((z) => z.id === initialZone) ? initialZone : 'all';
 
+  const boardTitleEl = document.getElementById('fids-board-title');
   const clockEl = document.getElementById('dash-clock');
   const totalInsideEl = document.getElementById('dash-total-inside');
-  const routingBadgeEl = document.getElementById('routing-badge');
-  const routingTitleEl = document.getElementById('routing-title');
-  const routingSpeakerEl = document.getElementById('routing-speaker');
-  const routingFocusBtn = document.getElementById('routing-focus-btn');
-  const tickerTextEl = document.getElementById('dash-ticker-text');
+  const tabsEl = document.getElementById('dash-zone-tabs');
   const balanceTextEl = document.getElementById('dash-balance-text');
-  const zoneTabsEl = document.getElementById('dash-zone-tabs');
-  const zonesGridEl = document.getElementById('zones-telemetry-grid');
-  const globalSectionEl = document.getElementById('dash-global-section');
-  const companiesKickerEl = document.getElementById('companies-zone-kicker');
-  const companiesTitleEl = document.getElementById('companies-section-title');
-  const zoneSummaryChipEl = document.getElementById('zone-summary-chip');
-  const companiesGridEl = document.getElementById('companies-grid');
+  const headEl = document.getElementById('fids-table-head');
+  const rowsEl = document.getElementById('fids-rows');
+  const hintEl = document.getElementById('fids-board-hint');
+  const routingBadgeEl = document.getElementById('routing-badge');
+  const routingCopyEl = document.getElementById('routing-copy');
+  const routingFocusBtn = document.getElementById('routing-focus-btn');
 
   if (isKioskMode) {
-    const controlsBar = document.getElementById('dash-controls-bar');
-    if (controlsBar) controlsBar.style.display = 'none';
+    const controls = document.getElementById('dash-controls-bar');
+    if (controls) controls.style.display = 'none';
   }
 
   function updateClock() {
-    if (!clockEl) return;
-    const now = new Date();
-    clockEl.textContent = now.toLocaleTimeString('tr-TR', { hour12: false });
+    if (clockEl) clockEl.textContent = new Date().toLocaleTimeString('tr-TR', { hour12: false });
   }
   updateClock();
   setInterval(updateClock, 1000);
 
+  function getFidsStatusColor(pct) {
+    if (pct >= 85) return { label: 'YOĞUN', color: '#ef4444' };
+    if (pct >= 65) return { label: 'KALABALIK', color: '#f5a623' };
+    return { label: 'MÜSAİT', color: '#27c96b' };
+  }
+
   function renderTabs(snap) {
-    if (!zoneTabsEl) return;
-    const tabs = [
-      `<button type="button" class="zone-tab-btn ${selectedZoneId === 'all' ? 'is-active' : ''}" data-tab-zone="all">Tümü (6 Zone)</button>`
+    if (!tabsEl) return;
+    const html = [
+      `<button type="button" class="fids-tab ${activeZoneFilter === 'all' ? 'is-active' : ''}" data-zone-tab="all">TÜM ZONE’LAR</button>`
     ];
     snap.zones.forEach((z) => {
-      tabs.push(
-        `<button type="button" class="zone-tab-btn ${selectedZoneId === z.id ? 'is-active' : ''}" data-tab-zone="${z.id}">` +
-          `<i style="background:${z.color}"></i>${z.shortName} · %${z.pct}` +
+      html.push(
+        `<button type="button" class="fids-tab ${activeZoneFilter === z.id ? 'is-active' : ''}" data-zone-tab="${z.id}">` +
+          `<i style="background:${z.color}"></i>${z.shortName.toUpperCase()}` +
         `</button>`
       );
     });
-    zoneTabsEl.innerHTML = tabs.join('');
-
-    zoneTabsEl.querySelectorAll('[data-tab-zone]').forEach((btn) => {
+    tabsEl.innerHTML = html.join('');
+    tabsEl.querySelectorAll('[data-zone-tab]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const zId = btn.dataset.tabZone;
-        selectedZoneId = zId;
-        if (zId !== 'all') companyDetailZoneId = zId;
+        activeZoneFilter = btn.dataset.zoneTab;
         render(api.getSnapshot());
       });
     });
   }
 
-  function renderZonesGrid(snap) {
-    if (!zonesGridEl || !globalSectionEl) return;
+  function renderGlobalZonesBoard(snap) {
+    boardTitleEl.textContent = 'KAMPÜS DOLULUK PANOSU';
+    headEl.innerHTML = '<span>ZONE / BÖLGE</span><span>YERLEŞKE / BLOK</span><span>KİŞİ</span><span>DOLULUK ORANI</span><span style="text-align:right">DURUM</span>';
 
-    // On a single-zone display (?zone=blue clicked), keep a compact top switcher and prominently showcase that zone's companies,
-    // or show the single focused zone hero card cleanly alongside its booths.
-    const visibleZones = selectedZoneId === 'all'
-      ? snap.zones
-      : snap.zones.filter((z) => z.id === selectedZoneId);
-
-    zonesGridEl.style.gridTemplateColumns = selectedZoneId === 'all' ? '' : '1fr';
-
-    zonesGridEl.innerHTML = visibleZones.map((z) => {
-      const isRoutingTarget = snap.routing && snap.routing.targetZoneId === z.id;
-      const isSelected = companyDetailZoneId === z.id;
-      const topCompanies = z.companies.slice(0, 3).map((c) => (
-        `<div class="zone-sub-row"><span>${c.name}</span><strong>${c.count}/${c.capacity} (%${c.pct})</strong></div>`
-      )).join('');
-
+    rowsEl.innerHTML = snap.zones.map((z) => {
+      const st = getFidsStatusColor(z.pct);
+      const isTarget = snap.routing && snap.routing.targetZoneId === z.id;
       return (
-        `<article class="zone-card ${isSelected ? 'is-selected' : ''} ${isRoutingTarget ? 'is-routing-target' : ''}" ` +
-          `style="--zone-color:${z.color};--status-color:${z.status.color}" data-select-zone="${z.id}" tabindex="0">` +
-          `<div class="zone-card-head">` +
+        `<div class="fids-row ${isTarget ? 'is-highlighted' : ''}" role="listitem" tabindex="0" data-open-zone="${z.id}" style="--zc:${z.color};--sc:${st.color}">` +
+          `<div class="fids-col-zone">` +
+            `<span class="fids-zone-bar" aria-hidden="true"></span>` +
             `<div>` +
-              `<span class="zone-kicker">${z.campusSide} · ${z.building}</span>` +
-              `<h3>${z.name}</h3>` +
+              `<div class="fids-zone-name">${z.name}</div>` +
+              `<div class="fids-zone-sub">${z.subtitle}</div>` +
             `</div>` +
-            `<span class="zone-status-badge">${z.status.label}</span>` +
           `</div>` +
-          `<div class="zone-meter-row">` +
-            `<strong class="zone-pct-big">%${z.pct}</strong>` +
-            `<span class="zone-count-meta">${z.count} / ${z.capacity} Kişi</span>` +
+          `<div class="fids-col-loc">${z.building}</div>` +
+          `<div class="fids-col-count">${z.count} / ${z.capacity}</div>` +
+          `<div class="fids-col-pct">` +
+            `<span class="fids-pct-num">%${z.pct}</span>` +
+            `<div class="fids-led-track"><div class="fids-led-fill" style="width:${z.pct}%"></div></div>` +
           `</div>` +
-          `<div class="zone-progress-track"><div class="zone-progress-fill" style="width:${z.pct}%"></div></div>` +
-          (isRoutingTarget ? `<span class="routing-tag-mini">ŞU AN YÖNLENDİRİLEN ALAN</span>` : '') +
-          `<div class="zone-sub-preview">${topCompanies}</div>` +
-        `</article>`
+          `<div class="fids-col-status"><span class="fids-status-tag">${isTarget ? 'YÖNLENDİRME' : st.label}</span></div>` +
+        `</div>`
       );
     }).join('');
 
-    zonesGridEl.querySelectorAll('[data-select-zone]').forEach((card) => {
-      card.addEventListener('click', () => {
-        companyDetailZoneId = card.dataset.selectZone;
+    rowsEl.querySelectorAll('[data-open-zone]').forEach((row) => {
+      const openZone = () => {
+        activeZoneFilter = row.dataset.openZone;
         render(api.getSnapshot());
+      };
+      row.addEventListener('click', openZone);
+      row.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openZone();
+        }
       });
     });
+
+    hintEl.innerHTML = '<span>Şirket ve masa bazlı ekranı açmak için satıra dokunun.</span><span>Otomatik yenileme aktif</span>';
   }
 
-  function renderCompaniesSection(snap) {
-    const activeZone = snap.zonesById[companyDetailZoneId] || snap.zones[0];
-    if (!activeZone || !companiesGridEl) return;
+  function renderZoneCompanyBoard(snap, zone) {
+    boardTitleEl.textContent = `${zone.name.toUpperCase()} · KURUM DOLULUK EKRANI`;
+    headEl.innerHTML = '<span>KURUM / NOKTA</span><span>STANT / KONUM</span><span>KİŞİ</span><span>DOLULUK ORANI</span><span style="text-align:right">DURUM</span>';
 
-    companiesKickerEl.textContent = `${activeZone.name.toUpperCase()} EKRANI · ${activeZone.building.toUpperCase()}`;
-    companiesKickerEl.style.color = activeZone.color;
-    companiesTitleEl.textContent = `${activeZone.name} — Kurum ve Masa Doluluk Oranları`;
-    zoneSummaryChipEl.textContent = `Bölge Doluluğu: %${activeZone.pct} (${activeZone.count} / ${activeZone.capacity} Kişi) · ${activeZone.walkingHint}`;
-
-    companiesGridEl.innerHTML = activeZone.companies.map((c) => (
-      `<div class="company-card" style="--zone-color:${activeZone.color};--status-color:${c.status.color}">` +
-        `<div class="company-card-top">` +
-          `<div>` +
-            `<h4>${c.name}</h4>` +
-            `<span class="company-role">${c.role}</span>` +
+    rowsEl.innerHTML = zone.companies.map((c) => {
+      const st = getFidsStatusColor(c.pct);
+      return (
+        `<div class="fids-row" role="listitem" style="--zc:${zone.color};--sc:${st.color}">` +
+          `<div class="fids-col-zone">` +
+            `<span class="fids-zone-bar" aria-hidden="true"></span>` +
+            `<div>` +
+              `<div class="fids-zone-name">${c.name}</div>` +
+              `<div class="fids-zone-sub">${c.role}</div>` +
+            `</div>` +
           `</div>` +
-          `<strong class="company-pct">%${c.pct}</strong>` +
-        `</div>` +
-        `<div class="company-desk">${c.desk}</div>` +
-        `<div class="company-bar-track"><div class="company-bar-fill" style="width:${c.pct}%"></div></div>` +
-        `<div class="company-card-foot">` +
-          `<span>Anlık Yoğunluk: ${c.count} / ${c.capacity}</span>` +
-          `<strong style="color:${c.status.color}">${c.status.label}</strong>` +
-        `</div>` +
-      `</div>`
-    )).join('');
-  }
+          `<div class="fids-col-loc">${c.desk}</div>` +
+          `<div class="fids-col-count">${c.count} / ${c.capacity}</div>` +
+          `<div class="fids-col-pct">` +
+            `<span class="fids-pct-num">%${c.pct}</span>` +
+            `<div class="fids-led-track"><div class="fids-led-fill" style="width:${c.pct}%"></div></div>` +
+          `</div>` +
+          `<div class="fids-col-status"><span class="fids-status-tag">${st.label}</span></div>` +
+        `</div>`
+      );
+    }).join('');
 
-  function renderRoutingAndBalance(snap) {
-    if (totalInsideEl) totalInsideEl.textContent = `${snap.totalInside} / ${snap.totalCapacity}`;
+    hintEl.innerHTML =
+      `<span>${zone.name} Toplam Doluluk: %${zone.pct} (${zone.count} / ${zone.capacity} Kişi) · ${zone.walkingHint}</span>` +
+      `<button type="button" class="fids-back-btn" id="fids-return-all">← Tüm Zone’lara Dön</button>`;
 
-    if (snap.routing) {
-      const targetZone = snap.zonesById[snap.routing.targetZoneId];
-      if (routingBadgeEl) routingBadgeEl.textContent = snap.routing.badge;
-      if (routingTitleEl) {
-        routingTitleEl.textContent = `${snap.routing.title} → ${targetZone ? targetZone.name : ''} (${targetZone ? targetZone.building : ''})`;
-      }
-      if (routingSpeakerEl) routingSpeakerEl.textContent = snap.routing.speaker;
-      if (routingFocusBtn) {
-        routingFocusBtn.textContent = snap.routing.actionText || `${targetZone?.shortName || 'Alan'} Ekranına Geç →`;
-        routingFocusBtn.onclick = () => {
-          selectedZoneId = snap.routing.targetZoneId;
-          companyDetailZoneId = snap.routing.targetZoneId;
-          render(api.getSnapshot());
-        };
-      }
-      if (tickerTextEl) {
-        tickerTextEl.textContent = snap.routing.ticker || `${snap.routing.speaker} — ${snap.routing.title}`;
-      }
-    }
-
-    if (snap.balance && balanceTextEl) {
-      balanceTextEl.textContent = snap.balance.message;
-    }
+    document.getElementById('fids-return-all')?.addEventListener('click', () => {
+      activeZoneFilter = 'all';
+      render(api.getSnapshot());
+    });
   }
 
   function render(snap) {
-    renderRoutingAndBalance(snap);
+    if (totalInsideEl) totalInsideEl.textContent = `${snap.totalInside} / ${snap.totalCapacity}`;
+    if (balanceTextEl && snap.balance) {
+      balanceTextEl.textContent = snap.balance.message;
+    }
+
+    if (snap.routing) {
+      const tz = snap.zonesById[snap.routing.targetZoneId];
+      if (routingBadgeEl) routingBadgeEl.textContent = snap.routing.badge.split('·')[0].trim();
+      if (routingCopyEl) {
+        routingCopyEl.textContent =
+          `${snap.routing.speaker.split('·')[0].trim()} · ${snap.routing.title.toUpperCase()} — HEDEF: ${tz ? tz.name.toUpperCase() + ' (' + tz.building.toUpperCase() + ')' : ''}`;
+      }
+      if (routingFocusBtn) {
+        routingFocusBtn.onclick = () => {
+          activeZoneFilter = snap.routing.targetZoneId;
+          render(api.getSnapshot());
+        };
+      }
+    }
+
     renderTabs(snap);
-    renderZonesGrid(snap);
-    renderCompaniesSection(snap);
+    if (activeZoneFilter === 'all') {
+      renderGlobalZonesBoard(snap);
+    } else {
+      const zone = snap.zonesById[activeZoneFilter] || snap.zones[0];
+      renderZoneCompanyBoard(snap, zone);
+    }
   }
 
-  // Controls Wiring
-  const simToggleBtn = document.getElementById('dash-sim-toggle');
-  if (simToggleBtn) {
-    simToggleBtn.addEventListener('click', () => {
-      simActive = !simActive;
-      simToggleBtn.setAttribute('aria-pressed', String(simActive));
-      simToggleBtn.textContent = simActive ? 'Canlı Akış: Açık' : 'Canlı Akış: Duraklatıldı';
-    });
-  }
-
+  // Organizer dispatch controls
   const dispatchToggleBtn = document.getElementById('dash-dispatch-toggle');
   const dispatchPanelEl = document.getElementById('dash-dispatch-panel');
   if (dispatchToggleBtn && dispatchPanelEl) {
@@ -201,56 +185,41 @@
     });
   }
 
-  const presetContainer = document.getElementById('dispatch-preset-buttons');
-  if (presetContainer) {
-    presetContainer.innerHTML = api.ROUTING_PRESETS.map((p) => (
-      `<button type="button" class="dash-btn" data-preset-id="${p.id}">${p.speaker.split('·')[0].trim()} → ${api.ZONES.find((z) => z.id === p.targetZoneId)?.shortName}</button>`
+  const presetRow = document.getElementById('dispatch-preset-buttons');
+  if (presetRow) {
+    presetRow.innerHTML = api.ROUTING_PRESETS.map((p) => (
+      `<button type="button" class="fids-tool-btn" data-preset="${p.id}">${p.speaker.split('·')[0].trim()} → ${api.ZONES.find((z) => z.id === p.targetZoneId)?.shortName}</button>`
     )).join('');
-    presetContainer.querySelectorAll('[data-preset-id]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        api.setRoutingAlert(btn.dataset.presetId);
-      });
+    presetRow.querySelectorAll('[data-preset]').forEach((btn) => {
+      btn.addEventListener('click', () => api.setRoutingAlert(btn.dataset.preset));
     });
   }
 
-  const customZoneSelect = document.getElementById('custom-target-zone');
-  if (customZoneSelect) {
-    customZoneSelect.innerHTML = api.ZONES.map((z) => `<option value="${z.id}">${z.name} (${z.building})</option>`).join('');
+  const targetSelect = document.getElementById('custom-target-zone');
+  if (targetSelect) {
+    targetSelect.innerHTML = api.ZONES.map((z) => `<option value="${z.id}">${z.name} (${z.building})</option>`).join('');
   }
 
-  const customForm = document.getElementById('custom-dispatch-form');
-  if (customForm) {
-    customForm.addEventListener('submit', (e) => {
+  const dispatchForm = document.getElementById('custom-dispatch-form');
+  if (dispatchForm) {
+    dispatchForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const speaker = document.getElementById('custom-speaker').value.trim();
       const title = document.getElementById('custom-title').value.trim();
       const targetZoneId = document.getElementById('custom-target-zone').value;
-      const targetZone = api.ZONES.find((z) => z.id === targetZoneId);
-      api.setRoutingAlert({
-        speaker,
-        title,
-        targetZoneId,
-        actionText: `${targetZone ? targetZone.shortName : 'Alan'} Ekranına Geç →`,
-        ticker: `RadioTEDU Canlı Anons · ${speaker}: ${title} (${targetZone ? targetZone.name + ' · ' + targetZone.building : ''})`
-      });
-      customForm.reset();
+      api.setRoutingAlert({ speaker, title, targetZoneId });
+      dispatchForm.reset();
     });
   }
 
-  const fsBtn = document.getElementById('dash-fullscreen-btn');
-  if (fsBtn) {
-    fsBtn.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen?.();
-      } else {
-        document.exitFullscreen?.();
-      }
-    });
-  }
+  document.getElementById('dash-fullscreen-btn')?.addEventListener('click', () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  });
 
   api.subscribe(render);
 
   setInterval(() => {
-    if (simActive) api.nudgeTelemetryTick();
+    api.nudgeTelemetryTick();
   }, 4500);
 })();
