@@ -3,100 +3,174 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kampüs Ekranı | SubmitTED 2026</title>
-  <meta name="description" content="SubmitTED Kariyer Zirvesi 2026 havalimanı bilgi ekranı tarzında karanlık canlı Zone ve şirket doluluk panosu.">
+  <title>Kampüs TV Ekranı | SubmitTED 2026</title>
+  <meta name="description" content="SubmitTED Kariyer Zirvesi 2026 TV ve web kampüs kroki ve canlı doluluk panosu.">
   <link rel="icon" type="image/svg+xml" href="assets/submitted-mark.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="dashboard.css?v=20261124v5">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css?v=20261124tv">
 </head>
-<body class="fids-body">
+<body class="tv-body">
 
-  <!-- Minimalist Dark Airport Header -->
-  <header class="fids-header">
-    <div class="fids-wrap fids-header-inner">
-      <div class="fids-brand">
-        <a href="index.html" class="fids-logo-link" aria-label="SubmitTED Ana Sayfa">
-          <img src="assets/submitted-logo-white.svg" alt="SubmitTED" class="fids-logo">
+  <!-- Executive TV Header (Zero Buttons, Clean Quality Logo + Live Clock) -->
+  <header class="tv-header">
+    <div class="tv-wrap tv-header-inner">
+      <div class="tv-brand">
+        <a href="index.html" class="tv-logo-link" aria-label="SubmitTED Ana Sayfa">
+          <img src="assets/submitted-logo-white.svg" alt="SubmitTED Kariyer Zirvesi Logo" class="tv-logo">
         </a>
-        <span class="fids-sep" aria-hidden="true">/</span>
-        <span class="fids-board-name" id="fids-board-title">KAMPÜS DOLULUK PANOSU</span>
-      </div>
-
-      <div class="fids-header-meta">
-        <div class="fids-stat">
-          <span>İÇERİDE</span>
-          <strong id="dash-total-inside">615 / 953</strong>
-        </div>
-        <div class="fids-clock" id="dash-clock">--:--:--</div>
-        <div class="fids-tools" id="dash-controls-bar">
-          <button type="button" class="fids-tool-btn" id="dash-dispatch-toggle" aria-expanded="false">Anons</button>
-          <button type="button" class="fids-tool-btn" id="dash-fullscreen-btn">Tam Ekran</button>
-          <a href="index.html" class="fids-tool-btn">Site</a>
+        <span class="tv-title-sep" aria-hidden="true"></span>
+        <div class="tv-title-group">
+          <h1 id="tv-board-title">Kampüs Doluluk ve Yönlendirme Ekranı</h1>
+          <span id="tv-board-sub">TED Üniversitesi · İncesu &amp; Aksu Yerleşkesi</span>
         </div>
       </div>
-    </div>
 
-    <!-- Subtle Screen Switcher Strip -->
-    <div class="fids-subnav">
-      <div class="fids-wrap fids-subnav-inner">
-        <div class="fids-tabs" id="dash-zone-tabs" role="tablist" aria-label="Ekran Modu"></div>
-        <span class="fids-balance-note" id="dash-balance-text"></span>
+      <div class="tv-header-right">
+        <div class="tv-kpi">
+          <span>Toplam Katılımcı</span>
+          <strong id="dash-total-inside">646 / 983</strong>
+        </div>
+        <div class="tv-clock-box">
+          <span>Anlık Saat</span>
+          <strong id="dash-clock">--:--</strong>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Collapsible Organizer Dispatch Bar (Hidden by default) -->
-  <section class="fids-dispatch" id="dash-dispatch-panel" hidden>
-    <div class="fids-wrap fids-dispatch-inner">
-      <div class="fids-preset-row" id="dispatch-preset-buttons"></div>
-      <form id="custom-dispatch-form" class="fids-dispatch-form">
-        <input type="text" id="custom-speaker" placeholder="Kurum (ör. ASELSAN)" required>
-        <input type="text" id="custom-title" placeholder="Çağrı metni (ör. Konuşma 10 dk içinde başlıyor)" required>
-        <select id="custom-target-zone" aria-label="Hedef Zone"></select>
-        <button type="submit" class="fids-tool-btn fids-tool-accent">Yayınla</button>
-      </form>
-    </div>
-  </section>
+  <!-- At-a-Glance TV Split Canvas: Left = 6 Zones + Program/Stands | Right = Legible 2D Campus Kroki -->
+  <main class="tv-main">
+    <div class="tv-wrap tv-grid">
 
-  <!-- Clean Airport Departure-Board Table (Zero QR Codes) -->
-  <main class="fids-main">
-    <div class="fids-wrap fids-board-container">
-      <div class="fids-board-frame">
-        <div class="fids-board-head" id="fids-table-head">
-          <span>BÖLGE / ALAN</span>
-          <span>KONUM</span>
-          <span>DOLULUK</span>
-          <span>ORAN</span>
-          <span>DURUM</span>
+      <!-- Left Column: Zones & At-a-Glance Program/Stand Table -->
+      <section class="tv-board-panel" aria-label="Bölge Dolulukları ve Program Özeti">
+        <div class="tv-panel-head" id="tv-panel-head">
+          <span>Bölge &amp; İçerik</span>
+          <span>Konum</span>
+          <span>Doluluk</span>
+          <span style="text-align:right">Durum</span>
+        </div>
+        <div class="tv-rows" id="tv-rows"></div>
+      </section>
+
+      <!-- Right Column: Clean, High-Contrast 2D TEDÜ Campus Schematic (Kroki) -->
+      <aside class="tv-map-panel" aria-label="2D Kampüs Yerleşim Krokisi">
+        <div class="tv-map-head">
+          <h2>2D Kampüs Krokisi</h2>
+          <span id="tv-balance-hint">İncesu ↔ Aksu (~2 dk)</span>
         </div>
 
-        <div class="fids-rows" id="fids-rows" role="list"></div>
-      </div>
+        <div class="kroki-canvas" id="kroki-canvas">
+          <svg viewBox="0 0 640 470" class="kroki-svg" role="img" aria-label="TED Üniversitesi Aksu ve İncesu Kampüsü 2D Zone Krokisi">
+            <!-- Campus Grounds -->
+            <rect x="14" y="16" width="276" height="438" rx="2" fill="#0d1317" stroke="#222c34" stroke-width="1.5"/>
+            <rect x="350" y="16" width="276" height="438" rx="2" fill="#0d1317" stroke="#222c34" stroke-width="1.5"/>
 
-      <div class="fids-board-hint" id="fids-board-hint">
-        Şirket ve masa yoğunluklarını görmek için listeden bir Zone satırına tıklayabilirsiniz.
-      </div>
+            <!-- Campus Wing Titles -->
+            <text x="28" y="42" fill="#8b97a2" font-family="Outfit, sans-serif" font-size="13" font-weight="700" letter-spacing="0.8">AKSU YERLEŞKESİ (BATI)</text>
+            <text x="364" y="42" fill="#8b97a2" font-family="Outfit, sans-serif" font-size="13" font-weight="700" letter-spacing="0.8">İNCESU YERLEŞKESİ (DOĞU)</text>
+
+            <!-- Ziya Gokalp Street Divider -->
+            <rect x="298" y="16" width="44" height="438" fill="#07090b" stroke="#1b232a" stroke-width="1"/>
+            <line x1="320" y1="30" x2="320" y2="440" stroke="#2e3b46" stroke-width="2" stroke-dasharray="7 7"/>
+            <text x="320" y="142" fill="#7d8a96" font-family="Outfit, sans-serif" font-size="11.5" font-weight="700" text-anchor="middle" transform="rotate(-90 320 142)" letter-spacing="1.6">ZİYA GÖKALP CADDESİ</text>
+
+            <!-- Aksu Connecting Walkway Arrow -->
+            <line x1="274" y1="382" x2="366" y2="382" stroke="#3c4b57" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <rect x="291" y="369" width="58" height="24" rx="2" fill="#131c23" stroke="#2c3a46"/>
+            <text x="320" y="385" fill="#d7e0e7" font-family="Inter Tight, sans-serif" font-size="10.5" font-weight="600" text-anchor="middle">~2 dk</text>
+
+            <!-- AKSU: G BLOK (One-to-One) -->
+            <g class="kroki-block" data-kroki-zone="one-to-one">
+              <rect x="28" y="60" width="246" height="80" rx="2" fill="#111a22" stroke="#1D4F7C" stroke-width="2"/>
+              <rect x="28" y="60" width="6" height="80" fill="#1D4F7C"/>
+              <text x="44" y="84" fill="#ffffff" font-family="Outfit, sans-serif" font-size="15" font-weight="700">One-to-One Meetings</text>
+              <text x="44" y="103" fill="#9fb0bd" font-family="Inter Tight, sans-serif" font-size="12">G Blok · Birebir Mülakat Oturumları</text>
+              <text x="44" y="126" fill="#7fa8cc" font-family="Inter Tight, sans-serif" font-size="11.5" font-weight="600" data-kroki-note="one-to-one">10.00 – 17.15 Seanslar</text>
+              <text x="260" y="92" fill="#ffffff" font-family="Outfit, sans-serif" font-size="22" font-weight="800" text-anchor="end" data-kroki-pct="one-to-one">%79</text>
+            </g>
+
+            <!-- AKSU: D BLOK (Tech&Innovation) -->
+            <g class="kroki-block" data-kroki-zone="tech">
+              <rect x="28" y="156" width="128" height="156" rx="2" fill="#0f1c16" stroke="#00A847" stroke-width="2" data-kroki-box="tech"/>
+              <rect x="28" y="156" width="6" height="156" fill="#00A847"/>
+              <text x="44" y="182" fill="#ffffff" font-family="Outfit, sans-serif" font-size="14.5" font-weight="700">Tech &amp;</text>
+              <text x="44" y="200" fill="#ffffff" font-family="Outfit, sans-serif" font-size="14.5" font-weight="700">Innovation</text>
+              <text x="44" y="221" fill="#9fb0bd" font-family="Inter Tight, sans-serif" font-size="11.5">D Blok · Amfi</text>
+              <text x="44" y="250" fill="#63d490" font-family="Inter Tight, sans-serif" font-size="11" font-weight="600">12.00 ASELSAN</text>
+              <text x="44" y="266" fill="#63d490" font-family="Inter Tight, sans-serif" font-size="11" font-weight="600">13.30 MİLSOFT</text>
+              <text x="44" y="298" fill="#ffffff" font-family="Outfit, sans-serif" font-size="22" font-weight="800" data-kroki-pct="tech">%77</text>
+            </g>
+
+            <!-- AKSU: AVLU (Food&Beverage) -->
+            <g class="kroki-block" data-kroki-zone="food-beverage">
+              <rect x="168" y="156" width="106" height="156" rx="2" fill="#1b160d" stroke="#D97706" stroke-width="2"/>
+              <rect x="168" y="156" width="6" height="156" fill="#D97706"/>
+              <text x="182" y="182" fill="#ffffff" font-family="Outfit, sans-serif" font-size="14" font-weight="700">Food &amp;</text>
+              <text x="182" y="200" fill="#ffffff" font-family="Outfit, sans-serif" font-size="14" font-weight="700">Beverage</text>
+              <text x="182" y="221" fill="#c7b59a" font-family="Inter Tight, sans-serif" font-size="11">Merkez Avlu</text>
+              <text x="182" y="246" fill="#f3b664" font-family="Inter Tight, sans-serif" font-size="11" font-weight="600">Kahve &amp;</text>
+              <text x="182" y="262" fill="#f3b664" font-family="Inter Tight, sans-serif" font-size="11" font-weight="600">Öğle İkramı</text>
+              <text x="182" y="298" fill="#ffffff" font-family="Outfit, sans-serif" font-size="22" font-weight="800" data-kroki-pct="food-beverage">%59</text>
+            </g>
+
+            <!-- AKSU: E BLOK SPOR MERKEZI (Blue Zone) -->
+            <g class="kroki-block" data-kroki-zone="blue">
+              <rect x="28" y="328" width="246" height="108" rx="2" fill="#0f1724" stroke="#1570EF" stroke-width="2"/>
+              <rect x="28" y="328" width="6" height="108" fill="#1570EF"/>
+              <text x="44" y="354" fill="#ffffff" font-family="Outfit, sans-serif" font-size="17" font-weight="700">Blue Zone</text>
+              <text x="44" y="372" fill="#9fb0bd" font-family="Inter Tight, sans-serif" font-size="11.5">E Blok · TEDÜ Spor Merkezi</text>
+              <text x="44" y="394" fill="#6aa8ff" font-family="Inter Tight, sans-serif" font-size="11" font-weight="600">ASELSAN · TUSAŞ · MİLSOFT</text>
+              <text x="44" y="410" fill="#6aa8ff" font-family="Inter Tight, sans-serif" font-size="11" font-weight="600">FNSS · ROKETSAN · GAMA ENERJİ</text>
+              <text x="44" y="427" fill="#8998a5" font-family="Inter Tight, sans-serif" font-size="10.5">2. İşveren Stant Alanı (6 Kurum)</text>
+              <text x="260" y="362" fill="#ffffff" font-family="Outfit, sans-serif" font-size="24" font-weight="800" text-anchor="end" data-kroki-pct="blue">%49</text>
+            </g>
+
+            <!-- INCESU: A / B BLOK (Teacher+) -->
+            <g class="kroki-block" data-kroki-zone="teacher-plus">
+              <rect x="366" y="60" width="246" height="156" rx="2" fill="#171426" stroke="#6E56CF" stroke-width="2" data-kroki-box="teacher-plus"/>
+              <rect x="366" y="60" width="6" height="156" fill="#6E56CF"/>
+              <text x="382" y="88" fill="#ffffff" font-family="Outfit, sans-serif" font-size="17" font-weight="700">Teacher+ Zone</text>
+              <text x="382" y="108" fill="#9fb0bd" font-family="Inter Tight, sans-serif" font-size="12">A / B Blok · Konferans Salonu</text>
+              <text x="382" y="140" fill="#b4a3ff" font-family="Inter Tight, sans-serif" font-size="12" font-weight="600">14.00 Prof. Dr. Kürşat Çağıltay</text>
+              <text x="382" y="160" fill="#b4a3ff" font-family="Inter Tight, sans-serif" font-size="12" font-weight="600">16.00 TED Ankara Koleji İK Müdürü</text>
+              <text x="382" y="196" fill="#ffffff" font-family="Outfit, sans-serif" font-size="24" font-weight="800" data-kroki-pct="teacher-plus">%68</text>
+            </g>
+
+            <!-- INCESU: K BLOK FUAYE (Red Zone) -->
+            <g class="kroki-block" data-kroki-zone="red">
+              <rect x="366" y="232" width="246" height="204" rx="2" fill="#211214" stroke="#D92D20" stroke-width="2"/>
+              <rect x="366" y="232" width="6" height="204" fill="#D92D20"/>
+              <text x="382" y="264" fill="#ffffff" font-family="Outfit, sans-serif" font-size="18" font-weight="700">Red Zone</text>
+              <text x="382" y="285" fill="#d0b7b5" font-family="Inter Tight, sans-serif" font-size="12.5">K Blok · Ana Fuaye Alanı</text>
+              <text x="382" y="320" fill="#ff958d" font-family="Inter Tight, sans-serif" font-size="12" font-weight="600">Akfen · DenizBank · EY Türkiye</text>
+              <text x="382" y="340" fill="#ff958d" font-family="Inter Tight, sans-serif" font-size="12" font-weight="600">Coca-Cola İçecek · KPMG · Anadolu Efes</text>
+              <text x="382" y="370" fill="#9ea8b2" font-family="Inter Tight, sans-serif" font-size="11.5">1. İşveren Stant Alanı (6 Kurum)</text>
+              <text x="382" y="416" fill="#ffffff" font-family="Outfit, sans-serif" font-size="26" font-weight="800" data-kroki-pct="red">%82</text>
+            </g>
+          </svg>
+        </div>
+      </aside>
+
     </div>
   </main>
 
-  <!-- Subtle Bottom Airport Gate Call / Soft-Flashing Announcement Bar -->
-  <footer class="fids-bottom-call" id="fids-bottom-call" aria-live="polite">
-    <div class="fids-wrap fids-call-inner">
-      <button type="button" class="fids-call-main" id="routing-focus-btn">
-        <span class="fids-flash-indicator" id="routing-badge">ANONS</span>
-        <span class="fids-flash-text" id="routing-copy">
-          ASELSAN KONUŞMASI 10 DK İÇİNDE TECH&amp;INNOVATION ZONE (D BLOK)’DA BAŞLIYOR
+  <!-- Subtle Bottom Soft-Flashing Routing & Announcement Bar (Executive Typography) -->
+  <footer class="tv-bottom-bar" id="fids-bottom-call" aria-live="polite">
+    <div class="tv-wrap tv-bottom-inner">
+      <div class="tv-flash-wrap">
+        <span class="tv-live-badge" id="routing-badge">Canlı Yönlendirme</span>
+        <span class="tv-flash-msg" id="routing-copy">
+          12.00 – 13.30 ASELSAN Söyleşisi — Tech&amp;Innovation Zone (D Blok · Aksu)’da başlıyor
         </span>
-      </button>
-      <a href="https://radiotedu.com/technology" target="_blank" rel="noopener noreferrer" class="fids-credit">
-        <span>Made with love by RadioTEDU Technologies</span>
-      </a>
+      </div>
+      <span class="tv-credit">Made with love by RadioTEDU Technologies</span>
     </div>
   </footer>
 
-  <script src="telemetry.js?v=20261124v4"></script>
-  <script src="dashboard.js?v=20261124v4"></script>
+  <script src="telemetry.js?v=20261124tv2"></script>
+  <script src="dashboard.js?v=20261124tv2"></script>
 </body>
 </html>

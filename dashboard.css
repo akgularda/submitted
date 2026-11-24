@@ -1,22 +1,21 @@
 /* ==========================================================================
-   SubmitTED 2026 — Dark Airport FIDS (Flight Information Display) Board
-   Ultra-clean obsidian palette, high-contrast tabular rows, zero clutter,
-   subtle soft-flashing bottom gate announcement bar.
+   SubmitTED 2026 — TV Wayfinding & Occupancy Screen (At-a-Glance Airport Display)
+   Clean executive typography (Outfit + Inter Tight), zero buttons in TV mode,
+   sharp 2D Campus Schematic (Kroki) + subtle soft-flashing bottom announcement.
    ========================================================================== */
 
 :root {
-  --fids-bg: #050708;
-  --fids-panel: #0a0d10;
-  --fids-row-alt: #0d1115;
-  --fids-border: #192026;
-  --fids-text: #eef1f4;
-  --fids-muted: #7b8690;
-  --fids-amber: #f5a623;
-  --fids-green: #27c96b;
-  --fids-red: #ef4444;
+  --tv-bg: #07090b;
+  --tv-surface: #0d1115;
+  --tv-surface-alt: #10161b;
+  --tv-border: #1e2730;
+  --tv-text: #f3f5f7;
+  --tv-muted: #8c98a4;
+  --tv-amber: #f5a623;
+  --tv-green: #27c96b;
+  --tv-red: #ef4444;
   --font-display: 'Outfit', sans-serif;
-  --font-sans: 'Inter Tight', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 *, *::before, *::after {
@@ -27,404 +26,352 @@
   display: none !important;
 }
 
-body.fids-body {
+body.tv-body {
   margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--fids-bg);
-  color: var(--fids-text);
+  background-color: var(--tv-bg);
+  color: var(--tv-text);
   font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
-.fids-wrap {
+.tv-wrap {
   width: 100%;
-  max-width: 1360px;
+  max-width: 1460px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 28px;
 }
 
 /* Header */
-.fids-header {
-  background-color: #07090b;
-  border-bottom: 1px solid var(--fids-border);
+.tv-header {
+  background-color: #050708;
+  border-bottom: 1px solid var(--tv-border);
 }
 
-.fids-header-inner {
+.tv-header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 62px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  gap: 20px;
+  min-height: 82px;
+  padding-top: 10px;
+  padding-bottom: 10px;
   flex-wrap: wrap;
 }
 
-.fids-brand {
+.tv-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 18px;
 }
 
-.fids-logo {
-  height: 32px;
+.tv-logo-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.tv-logo {
+  height: 48px;
   width: auto;
   display: block;
 }
 
-.fids-sep {
-  color: #2c353d;
-  font-size: 18px;
+.tv-title-sep {
+  width: 1px;
+  height: 36px;
+  background-color: #25303a;
 }
 
-.fids-board-name {
-  font-family: var(--font-mono);
+.tv-title-group h1 {
+  margin: 0 0 2px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.tv-title-group span {
   font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 1.4px;
-  color: var(--fids-amber);
+  color: var(--tv-muted);
 }
 
-.fids-header-meta {
+.tv-header-right {
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 24px;
 }
 
-.fids-stat {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  font-family: var(--font-mono);
-}
-
-.fids-stat span {
-  font-size: 10.5px;
-  color: var(--fids-muted);
-  letter-spacing: 1px;
-}
-
-.fids-stat strong {
-  font-size: 14px;
-  color: #ffffff;
-}
-
-.fids-clock {
-  font-family: var(--font-mono);
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--fids-amber);
-  letter-spacing: 1px;
-  padding-left: 14px;
-  border-left: 1px solid var(--fids-border);
-}
-
-.fids-tools {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.fids-tool-btn {
-  background: transparent;
-  border: 1px solid #222b33;
-  color: #b4bec7;
-  padding: 6px 11px;
-  font-size: 11.5px;
-  font-weight: 600;
-  border-radius: 2px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: border-color 0.15s ease, color 0.15s ease;
-}
-
-.fids-tool-btn:hover,
-.fids-tool-btn[aria-expanded='true'] {
-  border-color: var(--fids-amber);
-  color: #ffffff;
-}
-
-.fids-tool-accent {
-  background-color: var(--fids-amber);
-  border-color: var(--fids-amber);
-  color: #050708;
-  font-weight: 700;
-}
-
-/* Subnav Tabs */
-.fids-subnav {
-  background-color: #040607;
-  border-top: 1px solid #12181d;
-}
-
-.fids-subnav-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  flex-wrap: wrap;
-}
-
-.fids-tabs {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.fids-tab {
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--fids-muted);
-  padding: 5px 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: 2px;
-}
-
-.fids-tab i {
-  width: 7px;
-  height: 7px;
-}
-
-.fids-tab:hover {
-  color: #ffffff;
-}
-
-.fids-tab.is-active {
-  background-color: #13191f;
-  border-color: #2b3640;
-  color: #ffffff;
-}
-
-.fids-balance-note {
-  font-size: 12px;
-  color: var(--fids-muted);
-}
-
-/* Organizer Dispatch Drawer */
-.fids-dispatch {
-  background-color: #0b0f13;
-  border-bottom: 1px solid var(--fids-border);
-  padding: 12px 0;
-}
-
-.fids-dispatch-inner {
+.tv-kpi,
+.tv-clock-box {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: flex-end;
 }
 
-.fids-preset-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.tv-kpi span,
+.tv-clock-box span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tv-muted);
+  letter-spacing: 0.3px;
 }
 
-.fids-dispatch-form {
-  display: grid;
-  grid-template-columns: 1fr 1.6fr 210px auto;
-  gap: 8px;
-}
-
-.fids-dispatch-form input,
-.fids-dispatch-form select {
-  background-color: #050708;
-  border: 1px solid #232c35;
+.tv-kpi strong {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
   color: #ffffff;
-  padding: 7px 10px;
-  font-size: 12.5px;
-  border-radius: 2px;
 }
 
-/* Main Airport Board Table */
-.fids-main {
+.tv-clock-box {
+  padding-left: 22px;
+  border-left: 1px solid var(--tv-border);
+}
+
+.tv-clock-box strong {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.05;
+}
+
+/* Main Split Grid (Left = Table | Right = 2D Kroki) */
+.tv-main {
   flex: 1;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 26px 0 32px;
-}
-
-.fids-board-frame {
-  background-color: var(--fids-panel);
-  border: 1px solid var(--fids-border);
-}
-
-.fids-board-head,
-.fids-row {
-  display: grid;
-  grid-template-columns: minmax(210px, 1.5fr) minmax(170px, 1.3fr) 120px minmax(170px, 1fr) 120px;
   align-items: center;
-  gap: 16px;
-  padding: 0 22px;
+  padding: 22px 0;
 }
 
-.fids-board-head {
-  height: 40px;
-  background-color: #070a0c;
-  border-bottom: 1px solid var(--fids-border);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
+.tv-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.tv-board-panel,
+.tv-map-panel {
+  background-color: var(--tv-surface);
+  border: 1px solid var(--tv-border);
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Left Table */
+.tv-panel-head,
+.tv-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.65fr) minmax(130px, 1fr) 155px 96px;
+  align-items: center;
+  gap: 14px;
+  padding: 0 20px;
+}
+
+.tv-panel-head {
+  height: 42px;
+  background-color: #090c0f;
+  border-bottom: 1px solid var(--tv-border);
+  font-family: var(--font-display);
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 1.3px;
-  color: var(--fids-muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--tv-muted);
 }
 
-.fids-row {
-  min-height: 76px;
-  padding-top: 14px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #13191e;
+.tv-rows {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tv-row {
+  flex: 1;
+  min-height: 78px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #161e25;
   cursor: pointer;
-  transition: background-color 0.14s ease;
+  transition: background-color 0.15s ease;
 }
 
-.fids-row:last-child {
+.tv-row:last-child {
   border-bottom: none;
 }
 
-.fids-row:nth-child(even) {
-  background-color: var(--fids-row-alt);
+.tv-row:nth-child(even) {
+  background-color: var(--tv-surface-alt);
 }
 
-.fids-row:hover {
-  background-color: #12181f;
+.tv-row:hover {
+  background-color: #141c23;
 }
 
-.fids-row.is-highlighted {
-  box-shadow: inset 3px 0 0 var(--fids-amber);
-  background-color: rgba(245, 166, 35, 0.05);
+.tv-row.is-highlighted {
+  background-color: rgba(245, 166, 35, 0.06);
+  box-shadow: inset 3px 0 0 var(--tv-amber);
 }
 
-.fids-col-zone {
+.tv-col-zone {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   min-width: 0;
 }
 
-.fids-zone-bar {
+.tv-zone-accent {
   width: 4px;
-  height: 34px;
+  align-self: stretch;
+  min-height: 36px;
   background-color: var(--zc, #7dc84d);
   flex-shrink: 0;
 }
 
-.fids-zone-name {
+.tv-zone-title {
   font-family: var(--font-display);
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
   line-height: 1.15;
 }
 
-.fids-zone-sub {
-  font-size: 12px;
-  color: var(--fids-muted);
-  margin-top: 2px;
+.tv-zone-detail {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: #aeb8c2;
+  line-height: 1.35;
 }
 
-.fids-col-loc {
-  font-size: 13.5px;
-  color: #c2cbd3;
+.tv-col-loc {
+  font-size: 13px;
+  color: #cdd5dc;
+  line-height: 1.35;
 }
 
-.fids-col-count {
-  font-family: var(--font-mono);
-  font-size: 14.5px;
-  color: #dce3e8;
+.tv-col-loc small {
+  display: block;
+  font-size: 11.5px;
+  color: var(--tv-muted);
 }
 
-.fids-col-pct {
+.tv-col-occ {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.fids-pct-num {
-  font-family: var(--font-mono);
-  font-size: 20px;
-  font-weight: 700;
+.tv-occ-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tv-pct {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 800;
   color: #ffffff;
-  min-width: 54px;
 }
 
-.fids-led-track {
-  flex: 1;
+.tv-count {
+  font-size: 12px;
+  color: var(--tv-muted);
+}
+
+.tv-bar-track {
+  width: 100%;
   height: 6px;
-  background-color: #161d24;
+  background-color: #182027;
   overflow: hidden;
 }
 
-.fids-led-fill {
+.tv-bar-fill {
   height: 100%;
-  background-color: var(--sc, var(--fids-green));
+  background-color: var(--sc, var(--tv-green));
   transition: width 0.35s ease;
 }
 
-.fids-col-status {
+.tv-col-status {
   text-align: right;
 }
 
-.fids-status-tag {
+.tv-status-pill {
   display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.9px;
-  padding: 4px 10px;
-  border: 1px solid var(--sc, var(--fids-green));
-  color: var(--sc, var(--fids-green));
-  background-color: rgba(255, 255, 255, 0.02);
-}
-
-.fids-board-hint {
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--fids-muted);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.fids-back-btn {
-  background: transparent;
-  border: 1px solid #263039;
-  color: #e2e8ec;
-  padding: 5px 11px;
+  font-family: var(--font-sans);
   font-size: 11.5px;
-  font-weight: 600;
-  cursor: pointer;
+  font-weight: 700;
+  padding: 4px 10px;
+  border: 1px solid var(--sc, var(--tv-green));
+  color: var(--sc, var(--tv-green));
   border-radius: 2px;
 }
 
-.fids-back-btn:hover {
-  border-color: var(--fids-amber);
+/* Right Column: 2D Campus Map (Kroki) */
+.tv-map-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 42px;
+  padding: 0 18px;
+  background-color: #090c0f;
+  border-bottom: 1px solid var(--tv-border);
 }
 
-/* Airport Bottom Soft-Flashing Call Strip */
-.fids-bottom-call {
-  background-color: #030405;
-  border-top: 1px solid var(--fids-border);
-  padding: 13px 0;
+.tv-map-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #d6dde3;
 }
 
-.fids-call-inner {
+.tv-map-head span {
+  font-size: 12px;
+  color: var(--tv-muted);
+}
+
+.kroki-canvas {
+  flex: 1;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kroki-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.kroki-block {
+  cursor: pointer;
+  transition: opacity 0.16s ease;
+}
+
+.kroki-block:hover {
+  opacity: 0.9;
+}
+
+/* Bottom Soft-Flashing Routing Strip */
+.tv-bottom-bar {
+  background-color: #040506;
+  border-top: 1px solid var(--tv-border);
+  padding: 14px 0;
+}
+
+.tv-bottom-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -432,131 +379,118 @@ body.fids-body {
   flex-wrap: wrap;
 }
 
-.fids-call-main {
-  flex: 1;
-  min-width: 0;
-  max-width: 100%;
-  border: none;
-  background: transparent;
-  padding: 0;
+.tv-flash-wrap {
   display: flex;
   align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
   flex-wrap: wrap;
-  gap: 8px 14px;
-  text-align: left;
-  cursor: pointer;
 }
 
-.fids-flash-indicator {
-  font-family: var(--font-mono);
-  font-size: 11px;
+.tv-live-badge {
+  font-family: var(--font-display);
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.9px;
-  padding: 4px 10px;
-  background-color: var(--fids-amber);
+  letter-spacing: 0.4px;
+  padding: 5px 12px;
+  background-color: var(--tv-amber);
   color: #050708;
-  max-width: 100%;
-  animation: airportGateBadge 2.4s ease-in-out infinite;
+  border-radius: 2px;
+  animation: tvSoftPulse 2.6s ease-in-out infinite;
 }
 
-.fids-flash-text {
-  flex: 1 1 260px;
+.tv-flash-msg {
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #f7c368;
+  animation: tvSoftPulse 2.6s ease-in-out infinite;
   min-width: 0;
   overflow-wrap: anywhere;
-  font-family: var(--font-mono);
-  font-size: 13.5px;
-  font-weight: 500;
-  letter-spacing: 0.4px;
-  color: var(--fids-amber);
-  animation: airportSoftFlash 2.4s ease-in-out infinite;
 }
 
-@keyframes airportSoftFlash {
+@keyframes tvSoftPulse {
   0%, 100% {
     opacity: 1;
-    text-shadow: 0 0 12px rgba(245, 166, 35, 0.25);
   }
   50% {
-    opacity: 0.46;
-    text-shadow: none;
+    opacity: 0.45;
   }
 }
 
-@keyframes airportGateBadge {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.68; }
-}
-
-.fids-credit {
-  color: #5b656e;
-  text-decoration: none;
-  font-size: 11.5px;
+.tv-credit {
+  font-size: 12px;
+  color: #67727c;
   white-space: nowrap;
 }
 
-.fids-credit:hover {
-  color: #9ba8b2;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .fids-flash-indicator,
-  .fids-flash-text {
+  .tv-live-badge,
+  .tv-flash-msg {
     animation: none;
   }
 }
 
-/* Mobile Responsive */
-@media (max-width: 900px) {
-  .fids-board-head {
+/* Responsive */
+@media (max-width: 1120px) {
+  .tv-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .tv-wrap {
+    padding: 0 14px;
+  }
+
+  .tv-logo {
+    height: 36px;
+  }
+
+  .tv-title-sep {
     display: none;
   }
 
-  .fids-row {
+  .tv-title-group h1 {
+    font-size: 16px;
+  }
+
+  .tv-panel-head {
+    display: none;
+  }
+
+  .tv-row {
     grid-template-columns: 1fr auto;
     grid-template-areas:
       "zone status"
-      "loc count"
-      "pct pct";
+      "loc loc"
+      "occ occ";
     gap: 8px 12px;
     padding: 14px 16px;
   }
 
-  .fids-col-zone { grid-area: zone; }
-  .fids-col-status { grid-area: status; }
-  .fids-col-loc { grid-area: loc; font-size: 12px; }
-  .fids-col-count { grid-area: count; text-align: right; font-size: 12.5px; }
-  .fids-col-pct { grid-area: pct; }
-}
+  .tv-col-zone { grid-area: zone; }
+  .tv-col-status { grid-area: status; }
+  .tv-col-loc { grid-area: loc; }
+  .tv-col-occ { grid-area: occ; }
 
-@media (max-width: 640px) {
-  .fids-wrap {
-    padding: 0 14px;
+  .tv-header-right {
+    width: 100%;
+    justify-content: space-between;
   }
-  .fids-dispatch-form {
-    grid-template-columns: 1fr;
+
+  .tv-kpi,
+  .tv-clock-box {
+    align-items: flex-start;
   }
-  .fids-clock {
+
+  .tv-clock-box {
     padding-left: 0;
     border-left: none;
-    font-size: 15px;
   }
-  .fids-zone-name {
-    font-size: 16.5px;
-  }
-  .fids-call-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .fids-call-main {
-    width: 100%;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-  .fids-flash-text {
-    flex: none;
-    width: 100%;
-    font-size: 12px;
+
+  .tv-flash-msg {
+    font-size: 13.5px;
   }
 }
