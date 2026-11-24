@@ -9,10 +9,43 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261124c">
-  <link rel="stylesheet" href="campus3d.css?v=20261124c">
+  <link rel="stylesheet" href="styles.css?v=20261124d">
+  <link rel="stylesheet" href="campus3d.css?v=20261124d">
 </head>
 <body>
+
+  <!-- Scroll-Triggered Video Splash Intro Curtain -->
+  <section class="intro-curtain" id="intro-curtain" aria-label="SubmitTED Video Giriş Ekranı">
+    <div class="intro-video-layer" aria-hidden="true">
+      <video class="intro-video-el" src="assets/video/submitted-intro.mp4" autoplay muted loop playsinline preload="auto" poster="assets/hero-summit-bg.jpg"></video>
+      <div class="intro-video-scrim"></div>
+    </div>
+
+    <div class="intro-curtain-top">
+      <span class="intro-kicker">TED ÜNİVERSİTESİ · KARİYER VE LİDERLİK ZİRVESİ</span>
+      <button type="button" class="intro-skip-btn" id="intro-skip-btn">VİDEOYU ATLA [ESC] →</button>
+    </div>
+
+    <div class="intro-curtain-center">
+      <img src="assets/submitted-logo-white.svg" alt="SubmitTED Kariyer Zirvesi Logo" class="intro-logo-lg">
+      <h2 class="intro-headline">Kampüsün Altı Noktasında Gerçek Zamanlı Kariyer Zirvesi</h2>
+      <p class="intro-sub">
+        Red Zone (Fuaye), Blue Zone (Spor Merkezi), Tech&amp;Innovation, One-to-One Meetings, Teacher+ ve Food&amp;Beverage alanlarında QR ile gez, canlı dolulukları takip et.
+      </p>
+      <div class="intro-actions-row">
+        <button type="button" class="intro-enter-btn" id="intro-enter-btn">
+          <span>AŞAĞI KAYDIRARAK ZİRVEYE GİR</span>
+          <span aria-hidden="true">↓</span>
+        </button>
+        <a href="dashboard.html" class="intro-dash-link">Canlı Doluluk Dashboard →</a>
+      </div>
+    </div>
+
+    <div class="intro-curtain-bottom">
+      <span>20–21 Ekim 2026 · İncesu &amp; Aksu Kampüsü, Ankara</span>
+      <span class="intro-scroll-cue">Başlamak için aşağı kaydırın ↓</span>
+    </div>
+  </section>
 
   <!-- Sharp Full-Width Executive Topbar + Mobile Drawer -->
   <header class="site-topbar" id="top" aria-label="Ana Navigasyon">
@@ -22,12 +55,12 @@
       </a>
 
       <nav class="topbar-nav" aria-label="Bölümler">
-        <a href="#agenda-pillars" class="topbar-link">Sahneler</a>
-        <a href="#registration-hub" class="topbar-link">Öğrenci Kaydı</a>
+        <a href="#agenda-pillars" class="topbar-link">Zone'lar</a>
+        <a href="#registration-hub" class="topbar-link">Kayıt &amp; Pasaport</a>
         <a href="#corporate-portfolio" class="topbar-link">Şirketler İçin</a>
-        <a href="#campus-zones" class="topbar-link">Kampüs Alanları</a>
-        <a href="#speakers-partners" class="topbar-link">Konuşmacılar</a>
-        <a href="#mobile-showcase" class="topbar-link">Mobil Uygulama</a>
+        <a href="#campus-zones" class="topbar-link">3D Harita</a>
+        <a href="dashboard.html" class="topbar-link">Canlı Dashboard</a>
+        <a href="checkin.html" class="topbar-link">QR Check-in</a>
       </nav>
 
       <div class="topbar-actions">
@@ -48,12 +81,13 @@
     <!-- Mobile Navigation Drawer -->
     <div class="mobile-nav-drawer" id="mobile-nav-drawer" hidden>
       <div class="container mobile-drawer-inner">
-        <a href="#agenda-pillars" class="mobile-drawer-link">Sahne Mimarisi (6 Sahne)</a>
-        <a href="#registration-hub" class="mobile-drawer-link">Öğrenci &amp; Mezun Kaydı</a>
+        <a href="#agenda-pillars" class="mobile-drawer-link">6-Zone Zirve Mimarisi</a>
+        <a href="#registration-hub" class="mobile-drawer-link">Kayıt &amp; Zirve Pasaportu</a>
         <a href="#corporate-portfolio" class="mobile-drawer-link">Şirketler İçin · Kurumsal Portfolyo</a>
-        <a href="#campus-zones" class="mobile-drawer-link">Aksu Kampüsü Alan Planı</a>
-        <a href="#speakers-partners" class="mobile-drawer-link">Konuşmacılar ve İş Ortakları</a>
-        <a href="#mobile-showcase" class="mobile-drawer-link">Mobil Uygulama (Faz 2)</a>
+        <a href="#campus-zones" class="mobile-drawer-link">3D Kampüs Planı (İncesu &amp; Aksu)</a>
+        <a href="dashboard.html" class="mobile-drawer-link">Canlı Doluluk Dashboard</a>
+        <a href="checkin.html" class="mobile-drawer-link">Oda / Masa QR Check-in</a>
+        <a href="qr-kit.html" class="mobile-drawer-link">Organizatör QR Baskı Kiti</a>
         <button type="button" class="mobile-drawer-btn" id="mobile-login-btn">Katılımcı / Kurum Girişi</button>
       </div>
     </div>
@@ -647,17 +681,33 @@
     </div>
   </section>
 
-  <!-- Interactive 3D TEDÜ Campus Map (Adapted from radiotedu/tedufest) -->
+  <!-- Interactive 3D TEDÜ Campus Map + Live 6-Zone Telemetry Strip -->
   <section id="campus-zones" class="zones-band" aria-labelledby="zones-heading">
     <div class="container">
       <div class="section-split-head reveal-up">
         <div>
-          <span class="section-eyebrow">İNCESU &amp; AKSU · 3D KAMPÜS PLANI</span>
-          <h2 id="zones-heading" class="section-display-title">SubmitTED <span>3D Zirve Haritası</span></h2>
+          <span class="section-eyebrow">İNCESU &amp; AKSU · 6 ZONE TELEMETRİ &amp; 3D PLAN</span>
+          <h2 id="zones-heading" class="section-display-title">SubmitTED <span>Zone Sistemi &amp; 3D Harita</span></h2>
         </div>
         <p class="section-lead-right">
-          TEDÜ İncesu ve Aksu kampüslerini 3D ortamda döndürün; konferans salonları, kurumsal stantlar ve 1:1 mülakat alanlarını seçin.
+          Red Zone (Fuaye), Blue Zone (Spor Merkezi), Tech&amp;Innovation, One-to-One, Teacher+ ve Food&amp;Beverage alanlarının canlı doluluklarını inceleyin.
         </p>
+      </div>
+
+      <!-- Compact Live Telemetry Sync Strip (Zero QR Codes) -->
+      <div class="live-telemetry-card reveal-up" id="home-live-telemetry">
+        <div class="telemetry-strip-head">
+          <div class="telemetry-routing-line">
+            <span class="telemetry-routing-pill" id="home-routing-badge">CANLI YÖNLENDİRME</span>
+            <strong id="home-routing-title">ASELSAN Konuşması → Tech&amp;Innovation Zone (D Blok)</strong>
+          </div>
+          <div class="telemetry-strip-links">
+            <a href="dashboard.html" class="telemetry-link-btn is-primary">Canlı Dashboard’u Aç →</a>
+            <a href="checkin.html" class="telemetry-link-btn">Konum QR Check-in</a>
+            <a href="qr-kit.html" class="telemetry-link-btn">QR Baskı Kiti</a>
+          </div>
+        </div>
+        <div class="mini-zone-strip" id="home-mini-zones"></div>
       </div>
 
       <div id="submitted-world" class="submitted-world reveal-up">
@@ -705,19 +755,19 @@
       </div>
 
       <div class="zone-banners reveal-up">
-        <button type="button" class="zone-banner zone-banner-blue" data-zone="blue">
+        <button type="button" class="zone-banner zone-banner-red" data-zone="red">
           <div class="zone-banner-copy">
-            <h3>Kurumsal Fuar &amp; 1:1 Mülakat Bölgesi (Aksu · G Blok)</h3>
-            <p>32+ işveren standı, 12 adet 1:1 mülakat kabini ve CV inceleme masalarına 3D haritada odaklanın.</p>
+            <h3>Red Zone · 1. İşveren Alanı (Fuaye · K Blok)</h3>
+            <p>Akfen Holding, DenizBank, EY Türkiye, Coca-Cola İçecek stantları ve İncesu karşılama fuayesine 3D haritada odaklanın.</p>
           </div>
           <span class="zone-banner-arrow" aria-hidden="true">→</span>
         </button>
 
-        <button type="button" class="zone-banner zone-banner-green" data-zone="green">
+        <button type="button" class="zone-banner zone-banner-blue" data-zone="blue">
           <span class="zone-banner-arrow" aria-hidden="true">←</span>
           <div class="zone-banner-copy zone-copy-right">
-            <h3>Konferans &amp; Ana Sahne Bölgesi (İncesu · K Blok)</h3>
-            <p>Ana Sahne açılış konuşmaları ve liderlik panellerinin yer aldığı İncesu kanadına odaklanın.</p>
+            <h3>Blue Zone · 2. İşveren Alanı (Spor Merkezi · E Blok)</h3>
+            <p>ASELSAN, TUSAŞ, FNSS, HAVELSAN ve ROKETSAN’ın yer aldığı Spor Merkezi işveren alanına odaklanın.</p>
           </div>
         </button>
       </div>
@@ -988,12 +1038,13 @@
       </div>
 
       <div class="footer-bottom-bar">
-        <small>© 2026 SubmitTED Kariyer Zirvesi · TED Üniversitesi Kariyer Merkezi. Arayüz Tasarım Taslağı.</small>
+        <small>© 2026 SubmitTED Kariyer Zirvesi · TED Üniversitesi Kariyer Merkezi.</small>
         <div class="footer-bottom-links">
-          <a href="#agenda-pillars">Sahne Mimarisi</a>
-          <a href="#registration-hub">Öğrenci Kaydı</a>
-          <a href="#corporate-portfolio">Kurumsal Portfolyo</a>
-          <a href="#campus-zones">Kampüs Planı</a>
+          <a href="#registration-hub">Kayıt &amp; Pasaport</a>
+          <a href="#campus-zones">6 Zone Planı</a>
+          <a href="dashboard.html">Canlı Dashboard</a>
+          <a href="checkin.html">QR Check-in</a>
+          <a href="qr-kit.html">QR Baskı Kiti</a>
         </div>
       </div>
     </div>
@@ -1030,7 +1081,8 @@
     </div>
   </div>
 
-  <script src="app.js?v=20261124a"></script>
-  <script type="module" src="campus3d.js?v=20261124a"></script>
+  <script src="telemetry.js?v=20261124a"></script>
+  <script src="app.js?v=20261124b"></script>
+  <script type="module" src="campus3d.js?v=20261124b"></script>
 </body>
 </html>

@@ -359,13 +359,49 @@
         openCorporateInviteModal();
         return;
       }
+      const api = window.SubmitTEDTelemetry;
+      const existing = api ? api.getSnapshot().attendee : null;
+      if (existing) {
+        openModal(
+          'KAYITLI KATILIMCI PROFİLİ AKTİF',
+          'Konum QR Check-in ve Zirve Pasaportuna Hazırsınız',
+          `<p style="margin:0 0 12px;font-size:14px;color:#4f5961;">Kayıtlı profiliniz bulundu: <strong>${existing.name}</strong> (${existing.department}). Kampüsteki herhangi bir oda, masa veya Zone girişindeki QR kodunu telefonunuzla okutarak hemen giriş yapabilirsiniz.</p>` +
+          `<div style="display:flex;gap:10px;flex-wrap:wrap;">` +
+            `<a href="checkin.html" class="telemetry-link-btn is-primary" style="text-decoration:none;">QR Check-in &amp; Pasaportu Aç →</a>` +
+            `<a href="dashboard.html" class="telemetry-link-btn" style="text-decoration:none;background:#182024;">Canlı Doluluk Dashboard →</a>` +
+          `</div>`
+        );
+        return;
+      }
+
       openModal(
-        'ÖN KAYIT ADIMI ÖNİZLEMESİ',
-        'Katılımcı Bilgileri ve QR Yaka Kartı',
-        '<p style="margin:0;font-size:14px;color:#4f5961;">Seçili profil (<strong>' +
-          PROFILE_CONFIG[activeProfile].label +
-          '</strong>) ve seçilen sahneler için ücretsiz ön kayıt formu adımı bir sonraki geliştirme fazında bağlanacaktır.</p>'
+        'ÜCRETSİZ ÖN KAYIT VE PASAPORT',
+        PROFILE_CONFIG[activeProfile].label + ' Kaydı',
+        `<form id="home-reg-form" style="display:grid;gap:10px;">` +
+          `<p style="margin:0 0 4px;font-size:13.5px;color:#4f5961;">Bilgilerinizi bir kez kaydedin; gün içinde okuttuğunuz her Zone, 1:1 mülakat kabini ve yuvarlak masa QR'ı dijital pasaportunuza otomatik işlensin.</p>` +
+          `<input type="text" id="home-reg-name" placeholder="Adınız Soyadınız" required style="padding:10px 12px;border:1px solid #d3d9de;border-radius:2px;">` +
+          `<input type="email" id="home-reg-email" placeholder="E-posta Adresiniz (@tedu.edu.tr)" required style="padding:10px 12px;border:1px solid #d3d9de;border-radius:2px;">` +
+          `<input type="text" id="home-reg-dept" placeholder="Fakülte / Bölüm / Kurum" required style="padding:10px 12px;border:1px solid #d3d9de;border-radius:2px;">` +
+          `<button type="submit" style="border:none;background:#5fa832;color:#fff;padding:12px 16px;font-weight:700;cursor:pointer;border-radius:2px;">KAYDI TAMAMLA VE PASAPORT OLUŞTUR →</button>` +
+        `</form>`
       );
+
+      const form = document.getElementById('home-reg-form');
+      if (form && api) {
+        form.addEventListener('submit', (ev) => {
+          ev.preventDefault();
+          const rec = api.registerAttendee({
+            name: document.getElementById('home-reg-name').value,
+            email: document.getElementById('home-reg-email').value,
+            department: document.getElementById('home-reg-dept').value,
+            profile: activeProfile
+          });
+          modalBodyEl.innerHTML =
+            `<p style="margin:0 0 12px;font-size:14px;color:#182024;">Kaydınız tamamlandı: <strong>${rec.name}</strong> (Kod: <code>${rec.id}</code>).</p>` +
+            `<p style="margin:0 0 14px;font-size:13.5px;color:#4f5961;">Artık kampüsteki oda, masa ve Zone kapılarındaki QR kodlarını okutarak tek dokunuşla giriş yapabilir, dijital katılım sertifikanızı toplayabilirsiniz.</p>` +
+            `<a href="checkin.html" class="telemetry-link-btn is-primary" style="text-decoration:none;display:inline-flex;">Zirve Pasaportu &amp; QR Check-in’i Aç →</a>`;
+        });
+      }
     });
   }
 
@@ -402,6 +438,83 @@
     };
     window.addEventListener('scroll', syncScrollBtn, { passive: true });
     syncScrollBtn();
+  }
+
+  // Scroll-Triggered Video Splash Curtain
+  const curtainEl = document.getElementById('intro-curtain');
+  if (curtainEl) {
+    const alreadySeen = sessionStorage.getItem('submitted_intro_v2_seen') === '1' || Boolean(window.location.hash);
+    if (alreadySeen) {
+      curtainEl.classList.add('is-dismissed');
+      curtainEl.setAttribute('aria-hidden', 'true');
+    } else {
+      document.body.classList.add('has-intro-lock');
+      let touchStartY = null;
+
+      const dismissCurtain = () => {
+        if (curtainEl.classList.contains('is-dismissed')) return;
+        curtainEl.classList.add('is-dismissed');
+        curtainEl.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('has-intro-lock');
+        sessionStorage.setItem('submitted_intro_v2_seen', '1');
+        window.removeEventListener('wheel', onWheel);
+        window.removeEventListener('touchstart', onTouchStart);
+        window.removeEventListener('touchmove', onTouchMove);
+        window.removeEventListener('keydown', onKey);
+      };
+
+      const onWheel = (e) => {
+        if (e.deltaY > 10) dismissCurtain();
+      };
+      const onTouchStart = (e) => {
+        if (e.touches && e.touches[0]) touchStartY = e.touches[0].clientY;
+      };
+      const onTouchMove = (e) => {
+        if (touchStartY !== null && e.touches && e.touches[0] && touchStartY - e.touches[0].clientY > 22) {
+          dismissCurtain();
+        }
+      };
+      const onKey = (e) => {
+        if (['ArrowDown', 'PageDown', ' ', 'Escape'].includes(e.key)) {
+          e.preventDefault();
+          dismissCurtain();
+        }
+      };
+
+      window.addEventListener('wheel', onWheel, { passive: true });
+      window.addEventListener('touchstart', onTouchStart, { passive: true });
+      window.addEventListener('touchmove', onTouchMove, { passive: true });
+      window.addEventListener('keydown', onKey);
+      document.getElementById('intro-enter-btn')?.addEventListener('click', dismissCurtain);
+      document.getElementById('intro-skip-btn')?.addEventListener('click', dismissCurtain);
+    }
+  }
+
+  // Live 6-Zone Telemetry Strip Sync on Home Page
+  const miniZonesEl = document.getElementById('home-mini-zones');
+  const homeRouteBadgeEl = document.getElementById('home-routing-badge');
+  const homeRouteTitleEl = document.getElementById('home-routing-title');
+  if (window.SubmitTEDTelemetry && miniZonesEl) {
+    window.SubmitTEDTelemetry.subscribe((snap) => {
+      if (snap.routing) {
+        const tz = snap.zonesById[snap.routing.targetZoneId];
+        if (homeRouteBadgeEl) homeRouteBadgeEl.textContent = snap.routing.badge;
+        if (homeRouteTitleEl) homeRouteTitleEl.textContent = `${snap.routing.title} → ${tz ? tz.name : ''} (${tz ? tz.building : ''})`;
+      }
+      miniZonesEl.innerHTML = snap.zones.map((z) => (
+        `<button type="button" class="mini-zone-cell" style="--zc:${z.color}" data-home-zone="${z.id}">` +
+          `<small>${z.campusSide}</small>` +
+          `<div class="mini-zone-row"><span>${z.shortName}</span><span>%${z.pct}</span></div>` +
+          `<div class="mini-zone-bar"><div style="width:${z.pct}%"></div></div>` +
+        `</button>`
+      )).join('');
+
+      miniZonesEl.querySelectorAll('[data-home-zone]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.dispatchEvent(new CustomEvent('summit-scene-pick', { detail: { key: btn.dataset.homeZone, focus: true } }));
+        });
+      });
+    });
   }
 
   updateSummaryUI();

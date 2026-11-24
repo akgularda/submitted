@@ -1,90 +1,123 @@
-// SubmitTED Kariyer Zirvesi 2026 — 3D Campus Zone Metadata & UI Controller
-// Adapted from radiotedu/tedufest 3D TEDU campus map architecture.
+// SubmitTED Kariyer Zirvesi 2026 — 6-Zone 3D Campus Metadata & UI Controller
+// Official 6-Zone Architecture: Red (Fuaye K Blok), Blue (Spor Merkezi E Blok),
+// Tech&Innovation (D Blok), One-to-One Meetings (G Blok), Teacher+ (A/B Blok), Food&Beverage (Avlu).
 
-const SUMMIT_AREAS = {
-  keynote: {
-    label: '1. Sahne · K Blok',
-    title: 'Çok Amaçlı Konferans Salonu',
-    text: 'İncesu kampüsünün doğu kanadındaki K Blok ve Çok Amaçlı Konferans Salonu; açılış konuşmaları, C-level liderlik panelleri ve ana sahne oturumlarına ev sahipliği yapar.',
-    items: [
-      'Kapasite: 250 Kişi (Anlık: 184 İçeride)',
-      '09:30 – 17:00 Kesintisiz Ana Sahne Akışı',
-      'ASELSAN, Akfen Holding, Coca-Cola İçecek Panelleri'
-    ],
-    color: '#5fa832',
-    ctaTarget: '#registration-hub',
-    ctaText: 'Bu Sahneyi Seç'
+const telemetryApi = window.SubmitTEDTelemetry;
+
+const FALLBACK_ZONES = {
+  red: {
+    id: 'red',
+    name: 'Red Zone',
+    subtitle: '1. İşveren Alanı · Fuaye Alanı',
+    building: 'K Blok · Ana Fuaye',
+    color: '#D92D20',
+    capacity: 250,
+    count: 208,
+    pct: 83,
+    description: 'İncesu kanadındaki K Blok Ana Fuaye Alanında birinci küme işveren stantları ve hızlı kayıt/geçiş hattı yer alır.',
+    companies: [
+      { name: 'Akfen Holding', pct: 83 },
+      { name: 'DenizBank', pct: 85 },
+      { name: 'EY Türkiye', pct: 87 }
+    ]
   },
-  booths: {
-    label: 'Kurumsal Stantlar · İncesu',
-    title: 'İncesu Orta Bahçe Kariyer Alanı',
-    text: 'A ve B Bloklar arasındaki İncesu Orta Bahçe yürüyüş bandında katılımcı kurumların tanıtım stantları, staj bilgilendirme noktaları ve networking masaları yer alır.',
-    items: [
-      '32+ İşveren Kurum Stant Hattı',
-      'Gün Boyu Staj & MT Programı Tanıtımı',
-      'Sektör Temsilcileriyle Doğrudan Temas'
-    ],
-    color: '#235789',
-    ctaTarget: '#corporate-portfolio',
-    ctaText: 'Kurumsal Portfolyoyu Gör'
-  },
-  checkin: {
-    label: 'QR Akreditasyon · İncesu',
-    title: 'Ana Giriş & Canlı Kapasite Sayacı',
-    text: 'Ziya Gökalp Caddesi ve kampüs ana giriş noktasında QR yaka kartı teslimi ve Faz 2 mobil uygulamaya veri sağlayan anlık katılımcı giriş takibi yapılır.',
-    items: [
-      'Anlık Kampüs Girişi: 412 Kişi İçeride',
-      'Hızlı QR Yaka Kartı Aktivasyonu',
-      'Öğrenci, Mezun ve Kurumsal Karşılama Masası'
-    ],
-    color: '#262a29',
-    ctaTarget: '#mobile-showcase',
-    ctaText: 'Canlı Uygulamayı İncele'
+  blue: {
+    id: 'blue',
+    name: 'Blue Zone',
+    subtitle: '2. İşveren Alanı · Spor Merkezi',
+    building: 'E Blok · Spor Merkezi',
+    color: '#1570EF',
+    capacity: 300,
+    count: 144,
+    pct: 48,
+    description: 'Aksu kanadındaki E Blok Spor Merkezinde savunma sanayi ve yüksek teknoloji işveren stantları yer alır.',
+    companies: [
+      { name: 'ASELSAN', pct: 58 },
+      { name: 'TUSAŞ', pct: 51 },
+      { name: 'HAVELSAN', pct: 52 }
+    ]
   },
   tech: {
-    label: '2. Sahne · D Blok Amfi',
-    title: 'Teknoloji, YZ ve Ürün Sahnesi',
-    text: 'Aksu avlusunun batı cephesindeki D Blok amfi salonunda yapay zeka, veri bilimi, savunma sistemleri ve ürün yönetimi teknik oturumları düzenlenir.',
-    items: [
-      'Kapasite: 140 Kişi (Anlık: 96 İçeride)',
-      '10:30 – 16:30 Mühendislik & Ürün Panelleri',
-      'EY Türkiye, TUSAŞ & FNSS Teknik Liderleri'
-    ],
-    color: '#488524',
-    ctaTarget: '#registration-hub',
-    ctaText: 'Bu Sahneyi Seç'
+    id: 'tech',
+    name: 'Tech&Innovation Zone',
+    subtitle: 'Teknoloji, AI & Konuşma Amfisi',
+    building: 'D Blok · Amfi D-104',
+    color: '#00A847',
+    capacity: 120,
+    count: 88,
+    pct: 73,
+    description: 'Yapay zeka, savunma sistemleri ve ürün panellerinin gerçekleştiği teknik konuşma bölgesi.',
+    companies: [
+      { name: 'ASELSAN · Teknoloji Konuşması', pct: 82 },
+      { name: 'EY Türkiye · YZ Lab', pct: 70 }
+    ]
   },
-  roundtable: {
-    label: '3–4. Sahne · Aksu',
-    title: 'Yönetici Yuvarlak Masa Odaları',
-    text: 'Aksu kampüsü iç avlu toplantı salonlarında, 12 kişilik seçilmiş öğrenci gruplarıyla direktörler eşliğinde gerçek iş vakası çalışmaları gerçekleştirilir.',
-    items: [
-      'Kontenjan: 42 / 48 Katılımcı (Sınırlı)',
-      '75 Dakikalık İnteraktif Vaka Çözümü',
-      'CV Değerlendirmesiyle Ön Kabul'
-    ],
-    color: '#b86e00',
-    ctaTarget: '#registration-hub',
-    ctaText: 'Ön Başvuru Yap'
+  'one-to-one': {
+    id: 'one-to-one',
+    name: 'One-to-One Meetings Zone',
+    subtitle: 'Randevulu Mülakat & CV Kabinleri',
+    building: 'G Blok · Kabin 01–12',
+    color: '#1D4F7C',
+    capacity: 48,
+    count: 39,
+    pct: 81,
+    description: 'Masa/kabin QR kodu ile giriş yapılan 15 dakikalık birebir İK görüşmeleri ve CV kliniği alanı.',
+    companies: [
+      { name: 'ASELSAN Kabinleri', pct: 92 },
+      { name: 'TUSAŞ & FNSS Kabinleri', pct: 83 }
+    ]
   },
-  interviews: {
-    label: '5–6. Alan · G Blok',
-    title: '1:1 Mülakat Kabinleri & CV Kliniği',
-    text: 'Aksu avlusunun kuzeyindeki G Blok Fuaye alanında 12 adet 1:1 hızlı mülakat kabini, CV inceleme masaları ve kurumsal İK görüşme slotları bulunur.',
-    items: [
-      'Kapasite: 132 / 200 Kişi · 12 Görüşme Kabini',
-      'Randevulu 15 Dk Birebir İK Mülakatları',
-      'Ücretsiz CV & LinkedIn Profil Geri Bildirimi'
-    ],
-    color: '#1d4f7c',
-    ctaTarget: '#corporate-portfolio',
-    ctaText: 'Şirketler İçin Detaylar'
+  'teacher-plus': {
+    id: 'teacher-plus',
+    name: 'Teacher+ Zone',
+    subtitle: 'Akademisyen–Sektör & Yuvarlak Masa',
+    building: 'A / B Blok · İncesu',
+    color: '#6E56CF',
+    capacity: 50,
+    count: 24,
+    pct: 48,
+    description: 'Öğretim üyeleri ve sektör direktörleriyle vaka analizi ve yuvarlak masa buluşma odaları.',
+    companies: [
+      { name: 'Yuvarlak Masa A · Akfen', pct: 63 },
+      { name: 'Yuvarlak Masa B · CCI', pct: 50 }
+    ]
+  },
+  'food-beverage': {
+    id: 'food-beverage',
+    name: 'Food&Beverage Zone',
+    subtitle: 'İkram, Kahve & Açık Hava Networking',
+    building: 'C / F Arası & Avlu',
+    color: '#D97706',
+    capacity: 185,
+    count: 112,
+    pct: 61,
+    description: 'Kampüsün merkezinde sıcak içecek, yemek ve açık hava networking noktaları.',
+    companies: [
+      { name: 'Aksu Avlu İkram Hattı', pct: 62 },
+      { name: 'İncesu Bahçe Espresso Bar', pct: 59 }
+    ]
   }
 };
 
+let currentZoneKey = 'red';
+
+function getZoneData(key) {
+  if (telemetryApi) {
+    const snap = telemetryApi.getSnapshot();
+    return snap.zonesById[key] || snap.zones[0];
+  }
+  return FALLBACK_ZONES[key] || FALLBACK_ZONES.red;
+}
+
+function getAllZones() {
+  if (telemetryApi) return telemetryApi.getSnapshot().zones;
+  return Object.values(FALLBACK_ZONES);
+}
+
 export function selectSummitArea(key, focus = false) {
-  const area = SUMMIT_AREAS[key];
-  if (!area) return;
+  const zone = getZoneData(key);
+  if (!zone) return;
+  currentZoneKey = zone.id;
 
   const labelEl = document.getElementById('world-detail-label');
   const titleEl = document.getElementById('world-detail-title');
@@ -92,26 +125,39 @@ export function selectSummitArea(key, focus = false) {
   const listEl = document.getElementById('world-detail-list');
   const ctaEl = document.getElementById('world-detail-cta');
 
-  if (labelEl) labelEl.textContent = area.label;
-  if (titleEl) titleEl.textContent = area.title;
-  if (textEl) textEl.textContent = area.text;
-  if (listEl) listEl.innerHTML = area.items.map((t) => `<li>${t}</li>`).join('');
+  if (labelEl) {
+    labelEl.textContent = `${zone.building} · %${zone.pct} DOLU`;
+    labelEl.style.color = zone.color;
+  }
+  if (titleEl) titleEl.textContent = zone.name;
+  if (textEl) textEl.textContent = zone.description;
+  if (listEl) {
+    const companySummary = zone.companies.slice(0, 3).map((c) => `${c.name} (%${c.pct})`).join(' · ');
+    const rows = [
+      `Anlık Doluluk: ${zone.count} / ${zone.capacity} Kişi (%${zone.pct})`,
+      `Yerleşke: ${zone.subtitle}`,
+      companySummary ? `Alt Alanlar: ${companySummary}` : zone.walkingHint
+    ];
+    listEl.innerHTML = rows.map((t) => `<li>${t}</li>`).join('');
+  }
   if (ctaEl) {
-    ctaEl.setAttribute('href', area.ctaTarget);
-    ctaEl.textContent = area.ctaText + ' →';
+    ctaEl.setAttribute('href', `dashboard.html?zone=${zone.id}`);
+    ctaEl.textContent = `${zone.shortName} Canlı Ekranını Aç →`;
   }
 
   document.querySelectorAll('[data-map-zone]').forEach((b) => {
-    b.setAttribute('aria-pressed', String(b.dataset.mapZone === key));
+    b.setAttribute('aria-pressed', String(b.dataset.mapZone === zone.id));
   });
 
-  document.dispatchEvent(new CustomEvent('summit-zone-selected', { detail: { key, focus } }));
+  document.dispatchEvent(new CustomEvent('summit-zone-selected', { detail: { key: zone.id, focus } }));
 }
 
-const zonesBar = document.getElementById('world-zones-bar');
-if (zonesBar) {
-  zonesBar.innerHTML = Object.entries(SUMMIT_AREAS)
-    .map(([id, a]) => `<button type="button" data-map-zone="${id}" aria-pressed="${id === 'keynote'}"><i style="background:${a.color}"></i>${a.label}</button>`)
+function renderZonesBar() {
+  const zonesBar = document.getElementById('world-zones-bar');
+  if (!zonesBar) return;
+  const zones = getAllZones();
+  zonesBar.innerHTML = zones
+    .map((z) => `<button type="button" data-map-zone="${z.id}" aria-pressed="${z.id === currentZoneKey}"><i style="background:${z.color}"></i>${z.shortName} · %${z.pct}</button>`)
     .join('');
 
   zonesBar.querySelectorAll('[data-map-zone]').forEach((btn) => {
@@ -119,20 +165,29 @@ if (zonesBar) {
   });
 }
 
+renderZonesBar();
+
 document.addEventListener('summit-scene-pick', (e) => {
   selectSummitArea(e.detail.key, e.detail.focus !== false);
 });
 
-// Wire split zone banners below the 3D map to focus İncesu / Aksu areas smoothly
+// Wire split zone banners below the 3D map to focus Red Zone (Fuaye K Blok) / Blue Zone (Spor Merkezi E Blok)
 document.querySelectorAll('[data-zone]').forEach((bannerBtn) => {
   bannerBtn.addEventListener('click', () => {
     const z = bannerBtn.dataset.zone;
-    if (z === 'blue') {
-      selectSummitArea('interviews', true);
-    } else if (z === 'green') {
-      selectSummitArea('keynote', true);
+    if (z === 'red') {
+      selectSummitArea('red', true);
+    } else if (z === 'blue') {
+      selectSummitArea('blue', true);
     }
   });
 });
 
-selectSummitArea('keynote', false);
+if (telemetryApi) {
+  telemetryApi.subscribe(() => {
+    renderZonesBar();
+    selectSummitArea(currentZoneKey, false);
+  });
+} else {
+  selectSummitArea('red', false);
+}

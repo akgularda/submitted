@@ -1455,11 +1455,340 @@ select {
 }
 
 .zone-banner-blue {
-  background-color: var(--zone-blue);
+  background-color: #1570EF;
+}
+
+.zone-banner-red {
+  background-color: #D92D20;
 }
 
 .zone-banner-green {
   background-color: var(--accent-green-deep);
+}
+
+/* ==========================================================================
+   Scroll-Triggered Video Splash Curtain + Compact Live Telemetry Bar
+   ========================================================================== */
+
+body.has-intro-lock {
+  overflow: hidden;
+  height: 100dvh;
+}
+
+.intro-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background-color: #0b1114;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px 32px;
+  overflow: hidden;
+  transition: transform 0.72s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.55s ease;
+}
+
+.intro-curtain.is-dismissed {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-video-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(21, 112, 239, 0.16), transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(125, 200, 77, 0.14), transparent 50%),
+    #0b1114;
+}
+
+.intro-video-el {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.42;
+  filter: saturate(0.9) contrast(1.08);
+}
+
+.intro-video-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(11, 17, 20, 0.84) 0%, rgba(11, 17, 20, 0.45) 45%, rgba(11, 17, 20, 0.92) 100%);
+}
+
+.intro-curtain-top,
+.intro-curtain-center,
+.intro-curtain-bottom {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.intro-curtain-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  padding-bottom: 14px;
+}
+
+.intro-kicker {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #b7f5cf;
+  text-transform: uppercase;
+}
+
+.intro-skip-btn {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(11, 17, 20, 0.72);
+  color: #ffffff;
+  padding: 8px 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.intro-skip-btn:hover {
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+.intro-curtain-center {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.intro-logo-lg {
+  height: 78px;
+  width: auto;
+  max-width: 88vw;
+}
+
+.intro-headline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4.6vw, 52px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  max-width: 820px;
+}
+
+.intro-sub {
+  margin: 0;
+  font-size: 15.5px;
+  color: #d4dce1;
+  max-width: 640px;
+}
+
+.intro-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.intro-enter-btn {
+  border: none;
+  background-color: var(--accent-green-rich);
+  color: #ffffff;
+  padding: 13px 22px;
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intro-enter-btn:hover {
+  background-color: var(--accent-green-deep);
+}
+
+.intro-dash-link {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(18, 28, 34, 0.72);
+  color: #ffffff;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+.intro-dash-link:hover {
+  border-color: var(--accent-green);
+}
+
+.intro-curtain-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding-top: 14px;
+  font-size: 12px;
+  color: #a9b6bf;
+}
+
+.intro-scroll-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Live Telemetry Strip Above 3D Map */
+.live-telemetry-card {
+  background-color: #131c21;
+  color: #ffffff;
+  border: 1px solid #26333c;
+  border-top: 3px solid var(--accent-green);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  border-radius: var(--radius-sharp);
+}
+
+.telemetry-strip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #26333c;
+  flex-wrap: wrap;
+}
+
+.telemetry-routing-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+}
+
+.telemetry-routing-pill {
+  background-color: var(--accent-green);
+  color: #0c1215;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  padding: 3px 8px;
+}
+
+.telemetry-strip-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.telemetry-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 2px;
+  background-color: #1d2b33;
+  color: #ffffff;
+  border: 1px solid #30414c;
+}
+
+.telemetry-link-btn.is-primary {
+  background-color: var(--accent-green-rich);
+  border-color: var(--accent-green-rich);
+}
+
+.mini-zone-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mini-zone-cell {
+  background-color: #0c1215;
+  border: 1px solid #25323a;
+  border-left: 3px solid var(--zc, #7dc84d);
+  padding: 10px 11px;
+  cursor: pointer;
+  text-align: left;
+  color: #ffffff;
+}
+
+.mini-zone-cell:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.mini-zone-cell small {
+  display: block;
+  font-size: 10.5px;
+  color: #9ba8b0;
+  margin-bottom: 2px;
+}
+
+.mini-zone-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.mini-zone-bar {
+  height: 5px;
+  background: #1d282e;
+}
+
+.mini-zone-bar > div {
+  height: 100%;
+  background: var(--zc, #7dc84d);
+}
+
+@media (max-width: 1024px) {
+  .mini-zone-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .intro-curtain {
+    padding: 20px 18px;
+  }
+  .intro-logo-lg {
+    height: 54px;
+  }
+  .mini-zone-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .zone-copy-right {

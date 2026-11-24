@@ -105,9 +105,9 @@ function initSummitCampus(renderer) {
   };
 
   const groups = {};
-  for (const key of ['environment', 'keynote', 'screen', 'booths', 'checkin', 'tech', 'roundtable', 'interviews']) {
+  for (const key of ['environment', 'red', 'screen', 'blue', 'tech', 'one-to-one', 'teacher-plus', 'food-beverage']) {
     groups[key] = new THREE.Group();
-    groups[key].userData.zone = key === 'environment' ? null : key;
+    groups[key].userData.zone = key === 'environment' ? null : (key === 'screen' ? 'red' : key);
     scene.add(groups[key]);
   }
 
@@ -176,8 +176,8 @@ function initSummitCampus(renderer) {
     return mesh(new THREE.PlaneGeometry(w, h), material, x, y, z, parent);
   }
 
-  // Main Conference Pavilion (in front of K Blok Çok Amaçlı Salon, İncesu East)
-  const stage = groups.keynote;
+  // Main Conference & Red Zone Stage (in front of K Blok Fuaye, İncesu East)
+  const stage = groups.red;
   box(17.5, 1.1, 8, 0, 0.72, -9, m.dark, stage);
   box(17.7, 0.14, 8.1, 0, 1.35, -9, mat('#343c39'), stage);
   box(17.5, 0.1, 0.1, 0, 1.46, -4.9, greenGlow, stage);
@@ -256,19 +256,21 @@ function initSummitCampus(renderer) {
     c.font = '700 28px Arial';
     c.fillText('KARİYER VE LİDERLİK ZİRVESİ · 20–21 EKİM 2026', w / 2, 315);
     c.fillStyle = '#d0d7dc';
-    c.font = '500 22px Arial';
-    const pulse = Math.round(410 + Math.sin(time * 0.8) * 2);
-    c.fillText(`6 SAHNE · 32+ KURUM · ANLIK KAMPÜS GİRİŞİ: ${pulse} KİŞİ`, w / 2, 375);
+    c.font = '600 21px Arial';
+    const snap = window.SubmitTEDTelemetry ? window.SubmitTEDTelemetry.getSnapshot() : null;
+    const totalCount = snap ? snap.totalInside : Math.round(610 + Math.sin(time * 0.8) * 3);
+    const routeLine = snap && snap.routing ? `${snap.routing.speaker.split('·')[0].trim()} → ${snap.zonesById[snap.routing.targetZoneId]?.shortName || ''}` : '6 ZONE · CANLI TELEMETRİ';
+    c.fillText(`${routeLine} · TOPLAM KAMPÜS: ${totalCount} KİŞİ`, w / 2, 375);
     screen.texture.needsUpdate = true;
   }
   drawLED(0);
 
-  groups.keynote.rotation.y = -Math.PI / 2;
-  groups.keynote.position.x = 5;
+  groups.red.rotation.y = -Math.PI / 2;
+  groups.red.position.x = 5;
   groups.screen.rotation.y = -Math.PI / 2;
   groups.screen.position.x = 5;
 
-  function booth(x, z, color, label, category = 'booths') {
+  function booth(x, z, color, label, category = 'red') {
     const parent = groups[category];
     box(4.3, 0.2, 3.25, x, 0.35, z, mat('#e4e7ea'), parent);
     box(4, 2.7, 0.14, x, 1.8, z - 1.35, m.white, parent);
@@ -286,7 +288,7 @@ function initSummitCampus(renderer) {
     sign('SUBMITTED', x, 0.98, z + 1.315, 2.3, 0.44, parent, '#ffffff', color);
   }
 
-  function table(x, z, parent = groups.checkin) {
+  function table(x, z, parent = groups['food-beverage']) {
     cyl(0.75, 0.75, 0.1, x, 1.2, z, m.wood, parent, 24);
     cyl(0.07, 0.07, 1, x, 0.67, z, m.white, parent);
     for (const [dx, dz] of [[0, -1.1], [0, 1.1], [-1.1, 0], [1.1, 0]]) {
@@ -298,8 +300,8 @@ function initSummitCampus(renderer) {
   const flagTexture = canvasTexture(256, 512, (c, w, h) => {
     const g = c.createLinearGradient(0, 0, w, h);
     g.addColorStop(0, '#182734');
-    g.addColorStop(0.55, '#235789');
-    g.addColorStop(1, '#5fa832');
+    g.addColorStop(0.55, '#1570EF');
+    g.addColorStop(1, '#D92D20');
     c.fillStyle = g;
     c.fillRect(0, 0, w, h);
     c.fillStyle = '#ffffff';
@@ -313,7 +315,7 @@ function initSummitCampus(renderer) {
   }).texture;
 
   function flag(x, z, phase) {
-    const parent = groups.checkin;
+    const parent = groups.red;
     box(0.65, 0.12, 0.65, x, 0.28, z, m.silver, parent);
     beam(V(x, 0.35, z), V(x, 6.4, z), 0.055, m.silver, parent);
     mesh(new THREE.SphereGeometry(0.09, 8, 6), m.white, x, 6.5, z, parent);
@@ -324,7 +326,7 @@ function initSummitCampus(renderer) {
       new THREE.MeshStandardMaterial({ map: flagTexture, side: THREE.DoubleSide, roughness: 0.7 })
     );
     cloth.position.set(x, 4.45, z);
-    cloth.userData.zone = 'checkin';
+    cloth.userData.zone = 'red';
     cloth.userData.phase = phase;
     cloth.userData.original = geometry.attributes.position.array.slice();
     animations.add(cloth);
@@ -382,13 +384,13 @@ function initSummitCampus(renderer) {
   box(45, 0.1, 0.7, -1, 1.16, 16, mat('#a6aba4'));
   box(39, 0.12, 5.2, -5, 0.45, 13.1, stone);
 
-  booth(-16, -17.4, '#235789', 'ASELSAN · TUSAŞ', 'booths');
-  booth(-10, -17.4, '#182734', 'AKFEN · DENİZBANK', 'booths');
-  booth(-4, -17.4, '#235789', 'EY · COCA-COLA', 'booths');
+  booth(-16, -17.4, '#D92D20', 'AKFEN · DENİZBANK', 'red');
+  booth(-10, -17.4, '#D92D20', 'EY · COCA-COLA', 'red');
+  booth(-4, -17.4, '#D92D20', 'KPMG · ANADOLU EFES', 'red');
 
-  booth(14, 13.2, '#262a29', 'QR AKREDİTASYON', 'checkin');
-  table(7, 13.2, groups.checkin);
-  table(1.5, 13.2, groups.checkin);
+  booth(14, 13.2, '#D97706', 'KAHVE & NETWORKİNG', 'food-beverage');
+  table(7, 13.2, groups['food-beverage']);
+  table(1.5, 13.2, groups['food-beverage']);
 
   // North boundary & trees
   box(57, 1.8, 0.5, -1, 1.05, -22, mat('#c8c5b6'));
@@ -428,9 +430,9 @@ function initSummitCampus(renderer) {
     scene.add(label);
   }
 
-  building('A BLOK', -28, 0, 7, 38, 10.5);
-  building('B BLOK', 0, 20, 57, 7, 10.5);
-  building('K BLOK · ANA SAHNE', 29, 0, 8, 34, 6.5, '#5fa832');
+  building('A BLOK · TEACHER+', -28, 0, 7, 38, 10.5, '#6E56CF');
+  building('B BLOK · TEACHER+', 0, 20, 57, 7, 10.5, '#6E56CF');
+  building('K BLOK · RED ZONE (FUAYE)', 29, 0, 8, 34, 6.5, '#D92D20');
   box(6.5, 0.2, 27, 29, 6.95, 0, mat('#bdc7c4'));
   for (let z = -11; z < 12; z += 3) box(5, 0.16, 1.8, 29, 7.1, z, mat('#6c8994', 0.5, 0.3));
 
@@ -449,22 +451,24 @@ function initSummitCampus(renderer) {
   box(45, 0.13, 50, -69, 0.1, 0, stone);
   box(20, 0.1, 21, -69, 0.2, 0, mat('#9cb585'));
 
-  building('D BLOK · TEKNOLOJİ', -85, 0, 7, 38, 10, '#488524');
+  building('D BLOK · TECH & INNOVATION', -85, 0, 7, 38, 10, '#00A847');
   building('F BLOK', -70, 20, 24, 7, 8);
   building('C BLOK', -60, 9, 8, 15, 6);
-  building('G BLOK · 1:1 MÜLAKAT', -69, -20, 33, 7, 9, '#235789');
+  building('G BLOK · 1:1 MEETINGS', -69, -20, 33, 7, 9, '#1D4F7C');
   building('H BLOK', -50, -10, 7, 19, 9);
-  building('E BLOK', -50, 19, 8, 16, 7);
+  building('E BLOK · BLUE ZONE (SPOR MRK)', -50, 19, 8, 16, 7, '#1570EF');
 
   for (let i = 0; i < 4; i++) box(15, 0.2 * (i + 1), 0.8, -72, 0.2 + i * 0.1, 7 + i * 0.8, stone);
 
-  // Aksu Zones: G Blok Interviews, D Blok Tech, Courtyard Roundtables
-  booth(-76, -12, '#1d4f7c', '1:1 MÜLAKAT', 'interviews');
-  booth(-69, -12, '#235789', 'CV KLİNİĞİ', 'interviews');
-  booth(-76, -3, '#b86e00', 'YUVARLAK MASA A', 'roundtable');
-  booth(-69, -3, '#b86e00', 'YUVARLAK MASA B', 'roundtable');
-  booth(-76, 6, '#488524', 'D BLOK AMFİ GİRİŞ', 'tech');
-  booth(-69, 6, '#5fa832', 'YZ & ÜRÜN FORUMU', 'tech');
+  // Aksu Zones: G Blok One-to-One, D Blok Tech&Innovation, E Blok Blue Zone, Courtyard Food&Beverage
+  booth(-76, -12, '#1D4F7C', '1:1 KABİNLER', 'one-to-one');
+  booth(-69, -12, '#1D4F7C', 'CV KLİNİĞİ', 'one-to-one');
+  booth(-76, -3, '#D97706', 'FOOD & BEVERAGE', 'food-beverage');
+  table(-69, -3, groups['food-beverage']);
+  booth(-76, 6, '#00A847', 'ASELSAN · TECH SAHNE', 'tech');
+  booth(-69, 6, '#00A847', 'YZ & ÜRÜN DEMO', 'tech');
+  booth(-55, 17, '#1570EF', 'BLUE ZONE · ASELSAN / TUSAŞ', 'blue');
+  booth(-16, 15, '#6E56CF', 'TEACHER+ · YUVARLAK MASA', 'teacher-plus');
 
   for (const [x, z] of [[-88, -22], [-88, 22], [-59, -13], [-80, 13]]) tree(x, z, 0.8);
 
@@ -547,12 +551,12 @@ function initSummitCampus(renderer) {
   });
 
   const locations = {
-    keynote: { target: [16, 3, 0], pin: [24, 11.5, -2], color: '#5fa832', label: '1. Ana Sahne · K Blok', camera: 'incesu' },
-    booths: { target: [-10, 2, -17], pin: [-10, 6, -17], color: '#235789', label: 'Kurumsal Stantlar', camera: 'incesu' },
-    checkin: { target: [8, 2, 13], pin: [2, 5.5, 15], color: '#262a29', label: 'QR Giriş & Sayaç', camera: 'incesu' },
-    tech: { target: [-74, 2, 6], pin: [-76, 6.5, 6], color: '#488524', label: '2. Teknoloji · D Blok', camera: 'aksu' },
-    roundtable: { target: [-73, 2, -3], pin: [-73, 6, -3], color: '#b86e00', label: '3–4. Yuvarlak Masa', camera: 'aksu' },
-    interviews: { target: [-72, 2, -13], pin: [-72, 6.5, -13], color: '#1d4f7c', label: '1:1 Mülakat · G Blok', camera: 'aksu' }
+    red: { target: [16, 3, 0], pin: [24, 11.5, -2], color: '#D92D20', label: 'Red Zone · Fuaye', camera: 'incesu' },
+    blue: { target: [-53, 2, 17], pin: [-50, 10.5, 19], color: '#1570EF', label: 'Blue Zone · Spor Mrk.', camera: 'aksu' },
+    tech: { target: [-74, 2, 6], pin: [-76, 6.5, 6], color: '#00A847', label: 'Tech&Innovation', camera: 'aksu' },
+    'one-to-one': { target: [-72, 2, -13], pin: [-72, 6.5, -13], color: '#1D4F7C', label: 'One-to-One · G Blok', camera: 'interviews' },
+    'teacher-plus': { target: [-18, 2, 15], pin: [-16, 8.5, 16], color: '#6E56CF', label: 'Teacher+ · A/B Blok', camera: 'incesu' },
+    'food-beverage': { target: [-73, 2, -3], pin: [-73, 6, -3], color: '#D97706', label: 'Food&Beverage', camera: 'aksu' }
   };
 
   const pins = document.getElementById('world-hotspots');
@@ -562,30 +566,46 @@ function initSummitCampus(renderer) {
     b.className = 'world-hotspot';
     b.hidden = true;
     b.setAttribute('aria-label', loc.label + ' alanını seç');
-    b.setAttribute('aria-pressed', String(key === 'keynote'));
+    b.setAttribute('aria-pressed', String(key === 'red'));
     b.dataset.zone = key;
     b.style.setProperty('--pin-color', loc.color);
-    b.innerHTML = `<i></i><span>${loc.label}</span>`;
+    b.innerHTML = `<i></i><span>${loc.label}</span><em class="pin-pct" data-pin-pct="${key}"></em>`;
     b.addEventListener('click', () => pickZone(key));
     if (pins) pins.appendChild(b);
     loc.element = b;
     loc.vector = V(...loc.pin);
   }
 
+  function syncHotspotOccupancy() {
+    if (!window.SubmitTEDTelemetry) return;
+    const snap = window.SubmitTEDTelemetry.getSnapshot();
+    for (const [key, loc] of Object.entries(locations)) {
+      const z = snap.zonesById[key];
+      const pctEl = loc.element?.querySelector('[data-pin-pct]');
+      if (z && pctEl) {
+        pctEl.textContent = `%${z.pct}`;
+      }
+    }
+  }
+  if (window.SubmitTEDTelemetry) {
+    window.SubmitTEDTelemetry.subscribe(() => syncHotspotOccupancy());
+  }
+
   const selection = new THREE.Mesh(
     new THREE.RingGeometry(1.4, 1.58, 64),
-    new THREE.MeshBasicMaterial({ color: '#7dc84d', transparent: true, opacity: 0.78, side: THREE.DoubleSide, depthWrite: false })
+    new THREE.MeshBasicMaterial({ color: '#D92D20', transparent: true, opacity: 0.8, side: THREE.DoubleSide, depthWrite: false })
   );
   selection.rotation.x = -Math.PI / 2;
   selection.position.set(16, 0.6, 0);
   scene.add(selection);
 
-  let active = 'keynote';
+  let active = 'red';
   function pickZone(key, focus = true) {
     active = key;
     const loc = locations[key];
     if (!loc) return;
     selection.position.set(loc.target[0], 0.6, loc.target[2]);
+    selection.material.color.set(loc.color);
     document.dispatchEvent(new CustomEvent('summit-scene-pick', { detail: { key, focus } }));
   }
 
@@ -594,6 +614,7 @@ function initSummitCampus(renderer) {
     if (locations[key]) {
       active = key;
       selection.position.set(locations[key].target[0], 0.6, locations[key].target[2]);
+      selection.material.color.set(locations[key].color);
       for (const [k, l] of Object.entries(locations)) {
         if (l.element) l.element.setAttribute('aria-pressed', String(k === key));
       }
@@ -604,7 +625,7 @@ function initSummitCampus(renderer) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   let pointerDown;
-  const clickables = [groups.keynote, groups.booths, groups.checkin, groups.tech, groups.roundtable, groups.interviews, ...flags];
+  const clickables = [groups.red, groups.blue, groups.tech, groups['one-to-one'], groups['teacher-plus'], groups['food-beverage'], ...flags];
 
   function rayAt(e) {
     const rect = renderer.domElement.getBoundingClientRect();
@@ -674,8 +695,8 @@ function initSummitCampus(renderer) {
 
   function focusCampus(name) {
     setView(name);
-    if (name === 'aksu' && locations[active].camera !== 'aksu') pickZone('interviews', false);
-    else if (name === 'incesu' && locations[active].camera === 'aksu') pickZone('keynote', false);
+    if (name === 'aksu' && locations[active].camera !== 'aksu') pickZone('blue', false);
+    else if (name === 'incesu' && locations[active].camera === 'aksu') pickZone('red', false);
   }
 
   document.querySelectorAll('[data-camera]').forEach((b) => {

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konum QR Check-in & Zirve Pasaportu | SubmitTED 2026</title>
+  <meta name="description" content="SubmitTED 2026 oda, masa ve Zone bazlı QR giriş-çıkış ekranı ve Dijital Zirve Pasaportu.">
+  <link rel="icon" type="image/svg+xml" href="assets/submitted-mark.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css?v=20261124b">
+  <style>
+    .checkin-wrap { max-width: 780px; margin: 28px auto 48px; padding: 0 18px; }
+    .checkin-card {
+      background: #131c21; border: 1px solid #25333c; border-top: 4px solid var(--zone-accent, #7dc84d);
+      padding: 22px; margin-bottom: 18px;
+    }
+    .checkin-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.9px; color: #7dc84d; text-transform: uppercase; }
+    .checkin-title { margin: 6px 0 4px; font-family: 'Outfit', sans-serif; font-size: 26px; }
+    .checkin-sub { margin: 0 0 16px; color: #98a6b0; font-size: 14px; }
+    .checkin-status-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      background: #0c1215; border: 1px solid #25333c; padding: 12px 14px; margin-bottom: 16px;
+    }
+    .checkin-form { display: grid; gap: 10px; }
+    .checkin-form input, .checkin-form select {
+      background: #0c1215; border: 1px solid #25333c; color: #fff; padding: 11px 12px; font-size: 14px; border-radius: 2px;
+    }
+    .checkin-btn-primary {
+      width: 100%; border: none; background: #00a847; color: #fff; padding: 14px 18px;
+      font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; border-radius: 2px;
+    }
+    .checkin-btn-primary:hover { background: #149649; }
+    .checkin-btn-secondary {
+      width: 100%; border: 1px solid #25333c; background: #19242b; color: #fff; padding: 12px 16px;
+      font-size: 13.5px; font-weight: 600; cursor: pointer; border-radius: 2px; margin-top: 8px;
+    }
+    .checkin-feedback {
+      margin-top: 12px; padding: 12px 14px; background: rgba(0, 168, 71, 0.14);
+      border: 1px solid #00a847; color: #b7f5cf; font-size: 13.5px; line-height: 1.5;
+    }
+    .passport-grid {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 14px 0;
+    }
+    .stamp-box {
+      border: 1px solid #25333c; background: #0c1215; padding: 12px; font-size: 12.5px;
+    }
+    .stamp-box.is-stamped {
+      border-color: #7dc84d; background: rgba(125, 200, 77, 0.1);
+    }
+    .stamp-state { font-size: 10.5px; font-weight: 800; letter-spacing: 0.6px; display: block; margin-top: 4px; color: #98a6b0; }
+    .stamp-box.is-stamped .stamp-state { color: #7dc84d; }
+    .cert-banner {
+      padding: 14px; background: linear-gradient(90deg, #102a1d 0%, #16232e 100%);
+      border: 1px solid #7dc84d; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .loc-quick-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px;
+    }
+    .loc-chip-btn {
+      text-align: left; background: #0c1215; border: 1px solid #25333c; color: #e2e8ec;
+      padding: 10px 12px; font-size: 12px; cursor: pointer; border-radius: 2px;
+    }
+    .loc-chip-btn:hover { border-color: #7dc84d; }
+    @media (max-width: 640px) {
+      .passport-grid, .loc-quick-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="dash-body">
+
+  <header class="dash-topbar">
+    <div class="dash-container dash-topbar-inner">
+      <div class="dash-brand-group">
+        <a href="index.html"><img src="assets/submitted-logo-white.svg" alt="SubmitTED Logo" class="dash-logo"></a>
+        <div class="dash-env-tag"><span class="pulse-dot"></span><span>KONUM QR CHECK-IN</span></div>
+      </div>
+      <div class="dash-actions">
+        <a href="dashboard.html" class="dash-btn">Canlı Dashboard</a>
+        <a href="qr-kit.html" class="dash-btn">QR Baskı Kiti</a>
+        <a href="index.html" class="dash-btn dash-btn-accent">Ana Site →</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="checkin-wrap">
+    <!-- Scanned Location Card -->
+    <section class="checkin-card" id="loc-card">
+      <span class="checkin-kicker" id="loc-kicker">OKUTULAN NOKTA</span>
+      <h1 class="checkin-title" id="loc-title">Red Zone Ana Giriş</h1>
+      <p class="checkin-sub" id="loc-sub">K Blok · Ana Fuaye Alanı</p>
+
+      <div class="checkin-status-bar">
+        <div>
+          <small style="color:#98a6b0;display:block;font-size:11px;">MEKAN DOLULUĞU</small>
+          <strong id="loc-occ-text" style="font-size:18px;">208 / 250 Kişi (%83)</strong>
+        </div>
+        <div>
+          <small style="color:#98a6b0;display:block;font-size:11px;">AKTİF KONUMUNUZ</small>
+          <strong id="current-pos-text" style="font-size:14px;color:#7dc84d;">Henüz giriş yapılmadı</strong>
+        </div>
+      </div>
+
+      <!-- One-Time Attendee Registration if not stored yet -->
+      <form id="quick-register-form" class="checkin-form" hidden>
+        <p style="margin:0 0 4px;font-size:13px;color:#cbd5dc;">İlk girişiniz için bilgilerinizi bir kez kaydedin; gün boyu tüm oda/masa QR'larında hatırlanacaktır.</p>
+        <input type="text" id="reg-name" placeholder="Adınız Soyadınız" required>
+        <input type="email" id="reg-email" placeholder="TEDÜ / Üniversite E-posta (@tedu.edu.tr)" required>
+        <input type="text" id="reg-dept" placeholder="Bölüm / Sınıf (ör. Bilgisayar Müh. 3)" required>
+        <button type="submit" class="checkin-btn-primary">KAYDI OLUŞTUR VE BU ALANA GİRİŞ YAP →</button>
+      </form>
+
+      <!-- Instant Check-In / Out Controls when registered -->
+      <div id="checkin-action-area" hidden>
+        <div style="font-size:13px;color:#cbd5dc;margin-bottom:10px;">
+          Katılımcı: <strong id="attendee-badge-name" style="color:#fff;"></strong>
+        </div>
+        <button type="button" id="do-checkin-btn" class="checkin-btn-primary">BU NOKTAYA GİRİŞ YAP (CHECK-IN) →</button>
+        <button type="button" id="do-checkout-btn" class="checkin-btn-secondary" hidden>Şu Anki Konumdan Çıkış Yap (Check-out)</button>
+      </div>
+
+      <div class="checkin-feedback" id="checkin-feedback" hidden></div>
+    </section>
+
+    <!-- Digital Summit Passport -->
+    <section class="checkin-card" style="--zone-accent:#1570EF;">
+      <span class="checkin-kicker" style="color:#60a5fa;">DİJİTAL ZİRVE PASAPORTU</span>
+      <h2 style="margin:6px 0 4px;font-family:'Outfit',sans-serif;font-size:21px;">SubmitTED 2026 Katılım Damgaları</h2>
+      <p class="checkin-sub" id="passport-progress-text">En az 3 farklı Zone QR'ı okutarak dijital katılım sertifikanızı aktif edin.</p>
+
+      <div class="passport-grid" id="passport-grid"></div>
+
+      <div class="cert-banner" id="cert-banner" hidden>
+        <div>
+          <strong style="color:#7dc84d;display:block;font-size:14px;">SERTİFİKA HAKKI KAZANILDI</strong>
+          <span style="font-size:12.5px;color:#dce4ea;">SubmitTED 2026 Resmi Katılım Sertifikası ve Kariyer Çekilişi aktif.</span>
+        </div>
+        <button type="button" id="open-cert-btn" class="dash-btn dash-btn-accent">Sertifikamı Göster</button>
+      </div>
+    </section>
+
+    <!-- Switch Location (For Simulating Scanning Different Doors/Tables/Stands) -->
+    <section class="checkin-card" style="--zone-accent:#D97706;">
+      <span class="checkin-kicker" style="color:#f59e0b;">ODA / MASA / ZONE QR SİMÜLATÖRÜ</span>
+      <h3 style="margin:6px 0 4px;font-family:'Outfit',sans-serif;font-size:18px;">Başka Bir Oda veya Masa QR'ı Test Edin</h3>
+      <p class="checkin-sub">Bir noktaya giriş yaptığınızda önceki alanınızdan otomatik çıkış düşülür ve Dashboard ekranları anında güncellenir.</p>
+      <div class="loc-quick-grid" id="loc-quick-grid"></div>
+    </section>
+  </main>
+
+  <script src="telemetry.js?v=20261124a"></script>
+  <script>
+    (function () {
+      const api = window.SubmitTEDTelemetry;
+      if (!api) return;
+
+      const params = new URLSearchParams(window.location.search);
+      let currentLocId = params.get('loc') && api.LOCATIONS[params.get('loc')] ? params.get('loc') : 'red-zone';
+
+      const locCardEl = document.getElementById('loc-card');
+      const locKickerEl = document.getElementById('loc-kicker');
+      const locTitleEl = document.getElementById('loc-title');
+      const locSubEl = document.getElementById('loc-sub');
+      const locOccTextEl = document.getElementById('loc-occ-text');
+      const currentPosTextEl = document.getElementById('current-pos-text');
+      const regFormEl = document.getElementById('quick-register-form');
+      const actionAreaEl = document.getElementById('checkin-action-area');
+      const attendeeNameEl = document.getElementById('attendee-badge-name');
+      const checkInBtn = document.getElementById('do-checkin-btn');
+      const checkOutBtn = document.getElementById('do-checkout-btn');
+      const feedbackEl = document.getElementById('checkin-feedback');
+      const passportGridEl = document.getElementById('passport-grid');
+      const passportProgressEl = document.getElementById('passport-progress-text');
+      const certBannerEl = document.getElementById('cert-banner');
+      const locQuickGridEl = document.getElementById('loc-quick-grid');
+
+      function renderPage(snap) {
+        const loc = api.LOCATIONS[currentLocId] || api.LOCATIONS['red-zone'];
+        const zone = snap.zonesById[loc.zoneId];
+        locCardEl.style.setProperty('--zone-accent', zone.color);
+        locKickerEl.textContent = `${zone.name.toUpperCase()} · SABİT KONUM QR`;
+        locKickerEl.style.color = zone.color;
+        locTitleEl.textContent = loc.title;
+        locSubEl.textContent = loc.subTitle;
+
+        if (loc.companyId) {
+          const comp = zone.companies.find((c) => c.id === loc.companyId);
+          locOccTextEl.textContent = comp ? `${comp.count} / ${comp.capacity} Kişi (%${comp.pct})` : `${zone.count} / ${zone.capacity}`;
+        } else {
+          locOccTextEl.textContent = `${zone.count} / ${zone.capacity} Kişi (%${zone.pct})`;
+        }
+
+        const activeLoc = snap.passport.currentLocId ? api.LOCATIONS[snap.passport.currentLocId] : null;
+        currentPosTextEl.textContent = activeLoc ? `${activeLoc.title} (İçeride)` : 'Aktif giriş yok';
+
+        if (!snap.attendee) {
+          regFormEl.hidden = false;
+          actionAreaEl.hidden = true;
+        } else {
+          regFormEl.hidden = true;
+          actionAreaEl.hidden = false;
+          attendeeNameEl.textContent = `${snap.attendee.name} · ${snap.attendee.department}`;
+          const isHere = snap.passport.currentLocId === loc.locId;
+          checkInBtn.textContent = isHere ? 'BU KONUMDASINIZ (YENİLE)' : 'BU NOKTAYA GİRİŞ YAP (CHECK-IN) →';
+          checkOutBtn.hidden = !snap.passport.currentLocId;
+        }
+
+        // Passport stamps
+        const visitedCount = snap.passport.visitedZones.length;
+        passportProgressEl.textContent = `${visitedCount} / 6 Zone ziyaret edildi · Sertifika eşiği: 3 Zone (${visitedCount >= 3 ? 'Tamamlandı' : (3 - visitedCount) + ' kaldı'})`;
+        certBannerEl.hidden = visitedCount < 3;
+
+        passportGridEl.innerHTML = snap.zones.map((z) => {
+          const ok = snap.passport.visitedZones.includes(z.id);
+          return `<div class="stamp-box ${ok ? 'is-stamped' : ''}"><strong>${z.shortName}</strong><span class="stamp-state">${ok ? '✓ DAMGALANDI' : 'BEKLİYOR'}</span></div>`;
+        }).join('');
+
+        // Quick test buttons
+        const sampleLocs = [
+          'red-zone', 'blue-zone', 'tech-zone', '1on1-aselsan', 'roundtable-a', 'food-aksu',
+          'stand-aselsan', 'stand-akfen', 'stand-ey', 'tech-aselsan-stage'
+        ];
+        locQuickGridEl.innerHTML = sampleLocs.map((id) => {
+          const item = api.LOCATIONS[id];
+          return `<button type="button" class="loc-chip-btn" data-switch-loc="${id}"><strong>${item.title}</strong><br><span style="color:#98a6b0;">${item.subTitle}</span></button>`;
+        }).join('');
+
+        locQuickGridEl.querySelectorAll('[data-switch-loc]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            currentLocId = btn.dataset.switchLoc;
+            const url = new URL(window.location.href);
+            url.searchParams.set('loc', currentLocId);
+            window.history.replaceState({}, '', url);
+            feedbackEl.hidden = true;
+            renderPage(api.getSnapshot());
+          });
+        });
+      }
+
+      regFormEl.addEventListener('submit', (e) => {
+        e.preventDefault();
+        api.registerAttendee({
+          name: document.getElementById('reg-name').value,
+          email: document.getElementById('reg-email').value,
+          department: document.getElementById('reg-dept').value
+        });
+        const res = api.checkInLocation(currentLocId);
+        if (res.ok) {
+          feedbackEl.hidden = false;
+          feedbackEl.innerHTML = `Kayıt oluşturuldu ve <strong>${res.location.title}</strong> noktasına giriş yapıldı. Dashboard canlı olarak güncellendi.`;
+        }
+      });
+
+      checkInBtn.addEventListener('click', () => {
+        const res = api.checkInLocation(currentLocId);
+        if (res.ok) {
+          feedbackEl.hidden = false;
+          feedbackEl.innerHTML = (res.autoCheckedOutFrom ? `Önceki konumunuzdan (<strong>${res.autoCheckedOutFrom.title}</strong>) otomatik çıkış yapıldı.<br>` : '') +
+            `Yeni giriş onaylandı: <strong>${res.location.title}</strong> · Zirve Pasaportunuza işlendi.`;
+        }
+      });
+
+      checkOutBtn.addEventListener('click', () => {
+        const res = api.checkOutCurrent();
+        if (res.ok) {
+          feedbackEl.hidden = false;
+          feedbackEl.innerHTML = `<strong>${res.oldLocation?.title || 'Alan'}</strong> noktasından çıkışınız işlendi.`;
+        }
+      });
+
+      document.getElementById('open-cert-btn').addEventListener('click', () => {
+        const snap = api.getSnapshot();
+        feedbackEl.hidden = false;
+        feedbackEl.innerHTML = `<strong>SUBMITTED KARİYER ZİRVESİ 2026 KATILIM SERTİFİKASI</strong><br>Sayın <strong>${snap.attendee?.name || 'TEDÜ Katılımcısı'}</strong>, ${snap.passport.visitedZones.length} farklı Zone ziyaretini QR check-in ile tamamlayarak sertifika ve çekiliş hakkı kazandınız.`;
+      });
+
+      api.subscribe(renderPage);
+    })();
+  </script>
+</body>
+</html>

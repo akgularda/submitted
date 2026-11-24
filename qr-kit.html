@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organizatör QR Baskı Kiti | SubmitTED 2026</title>
+  <meta name="description" content="SubmitTED 2026 oda, masa, stant ve Zone girişleri için basıma hazır kurumsal QR afiş üreticisi.">
+  <link rel="icon" type="image/svg+xml" href="assets/submitted-mark.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css?v=20261124b">
+  <style>
+    .kit-toolbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin: 22px 0 18px; flex-wrap: wrap;
+    }
+    .kit-grid {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding-bottom: 40px;
+    }
+    .qr-poster-card {
+      background: #ffffff; color: #182024; border: 1px solid #d3d9de;
+      border-top: 6px solid var(--zone-color, #182024); padding: 20px;
+      display: flex; flex-direction: column; justify-content: space-between; break-inside: avoid;
+    }
+    .poster-head {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+      border-bottom: 1px solid #e6e9ec; padding-bottom: 12px; margin-bottom: 14px;
+    }
+    .poster-zone-tag {
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px; color: var(--zone-color, #182024);
+      text-transform: uppercase; display: block; margin-bottom: 4px;
+    }
+    .poster-card-title { margin: 0; font-family: 'Outfit', sans-serif; font-size: 19px; color: #182024; }
+    .poster-sub { font-size: 12px; color: #4f5961; margin-top: 3px; }
+    .poster-qr-frame {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 16px; background: #f8f9fa; border: 1px solid #e2e6ea; margin-bottom: 12px;
+    }
+    .poster-qr-frame svg, .poster-qr-frame img { width: 170px; height: 170px; display: block; }
+    .poster-url { font-size: 10.5px; color: #5b666e; word-break: break-all; margin-top: 8px; text-align: center; }
+    .poster-foot {
+      display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #4f5961;
+      border-top: 1px solid #e6e9ec; padding-top: 10px;
+    }
+    .poster-foot a { color: #1570ef; font-weight: 700; text-decoration: none; }
+    @media (max-width: 960px) { .kit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 640px) { .kit-grid { grid-template-columns: 1fr; } }
+    @media print {
+      .dash-topbar, .kit-toolbar, .dash-ticker-bar { display: none !important; }
+      body.dash-body { background: #ffffff !important; color: #000000 !important; }
+      .kit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+      .qr-poster-card { border: 1px solid #182024; }
+    }
+  </style>
+</head>
+<body class="dash-body">
+
+  <header class="dash-topbar">
+    <div class="dash-container dash-topbar-inner">
+      <div class="dash-brand-group">
+        <a href="index.html"><img src="assets/submitted-logo-white.svg" alt="SubmitTED Logo" class="dash-logo"></a>
+        <div class="dash-env-tag"><span class="pulse-dot"></span><span>ORGANİZATÖR QR BASKI KİTİ</span></div>
+      </div>
+      <div class="dash-actions">
+        <a href="dashboard.html" class="dash-btn">Canlı Dashboard</a>
+        <a href="checkin.html" class="dash-btn">Check-in Önizleme</a>
+        <button type="button" class="dash-btn dash-btn-accent" onclick="window.print()">Tüm Kartları Yazdır / PDF</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dash-container">
+    <div class="kit-toolbar">
+      <div class="zone-tabs" id="kit-filter-tabs"></div>
+      <span style="font-size:12.5px;color:#98a6b0;">Her QR kodu ilgili kapı, stant veya yuvarlak masa için doğrudan <code>checkin.html?loc=...</code> bağlantısı üretir.</span>
+    </div>
+
+    <div class="kit-grid" id="kit-grid"></div>
+  </main>
+
+  <footer class="dash-ticker-bar">
+    <div class="dash-container ticker-inner">
+      <span class="ticker-brand">SUBMITTED QR KİTİ</span>
+      <p class="ticker-text">Basılı afişleri A4/A5 boyutunda yazdırıp Zone girişlerine ve şirket/mülakat masalarına yerleştirebilirsiniz.</p>
+      <a href="https://radiotedu.com/technology" target="_blank" rel="noopener noreferrer" class="ticker-credit">
+        <span>Made with love by</span>
+        <img src="assets/radiotedu-white.png" alt="RadioTEDU" height="16">
+        <span>Technologies</span>
+      </a>
+    </div>
+  </footer>
+
+  <script src="vendor/qrcode.min.js"></script>
+  <script src="telemetry.js?v=20261124a"></script>
+  <script>
+    (function () {
+      const api = window.SubmitTEDTelemetry;
+      if (!api || !window.qrcode) return;
+
+      let activeZoneFilter = 'all';
+      const tabsEl = document.getElementById('kit-filter-tabs');
+      const gridEl = document.getElementById('kit-grid');
+
+      const baseDir = window.location.href.split('?')[0].replace(/[^/]*$/, '');
+
+      function makeQrSvg(url) {
+        const qr = window.qrcode(0, 'M');
+        qr.addData(url);
+        qr.make();
+        return qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+      }
+
+      function renderKit() {
+        tabsEl.innerHTML = [
+          `<button type="button" class="zone-tab-btn ${activeZoneFilter === 'all' ? 'is-active' : ''}" data-kit-zone="all">Tüm Noktalar (${Object.keys(api.LOCATIONS).length})</button>`,
+          ...api.ZONES.map((z) => `<button type="button" class="zone-tab-btn ${activeZoneFilter === z.id ? 'is-active' : ''}" data-kit-zone="${z.id}"><i style="background:${z.color}"></i>${z.shortName}</button>`)
+        ].join('');
+
+        tabsEl.querySelectorAll('[data-kit-zone]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            activeZoneFilter = btn.dataset.kitZone;
+            renderKit();
+          });
+        });
+
+        const list = Object.values(api.LOCATIONS).filter((loc) => activeZoneFilter === 'all' || loc.zoneId === activeZoneFilter);
+
+        gridEl.innerHTML = list.map((loc) => {
+          const z = api.ZONES.find((item) => item.id === loc.zoneId);
+          const targetUrl = `${baseDir}checkin.html?loc=${encodeURIComponent(loc.locId)}`;
+          return (
+            `<article class="qr-poster-card" style="--zone-color:${z.color}">` +
+              `<div>` +
+                `<div class="poster-head">` +
+                  `<div>` +
+                    `<span class="poster-zone-tag">${z.name} · ${loc.kind === 'zone' ? 'BÖLGE GİRİŞİ' : 'MASA / ODA QR'}</span>` +
+                    `<h3 class="poster-card-title">${loc.title}</h3>` +
+                    `<div class="poster-sub">${loc.subTitle}</div>` +
+                  `</div>` +
+                  `<img src="assets/submitted-logo-dark.svg" alt="SubmitTED" height="26">` +
+                `</div>` +
+                `<div class="poster-qr-frame">` +
+                  makeQrSvg(targetUrl) +
+                  `<div class="poster-url">${targetUrl}</div>` +
+                `</div>` +
+              `</div>` +
+              `<div class="poster-foot">` +
+                `<span>Kapasite: ${loc.capacity} Kişi</span>` +
+                `<a href="checkin.html?loc=${encodeURIComponent(loc.locId)}">QR Test Et →</a>` +
+              `</div>` +
+            `</article>`
+          );
+        }).join('');
+      }
+
+      renderKit();
+    })();
+  </script>
+</body>
+</html>
