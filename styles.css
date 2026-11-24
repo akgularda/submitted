@@ -2155,6 +2155,7 @@ select {
   min-height: 62px;
   padding-top: 14px;
   padding-bottom: 14px;
+  padding-right: 72px;
 }
 
 .technology-credit-inner > span {
